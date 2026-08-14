@@ -11,8 +11,9 @@ class ClienteCreate extends Component
     public $telefone;
     public $email;
     public $cpf_cnpj;
+    public $cep;
     public $cidade;
-    public $estado = 'SP';
+    public $estado;
     public $observacoes;
 
     protected $rules = [
@@ -20,6 +21,7 @@ class ClienteCreate extends Component
         'telefone' => 'required|max:20',
         'email' => 'nullable|email|max:150',
         'cpf_cnpj' => 'nullable|max:20',
+        'cep' => 'nullable|max:9',
         'cidade' => 'nullable|max:100',
         'estado' => 'nullable|max:2',
         'observacoes' => 'nullable|max:1000',
@@ -38,13 +40,18 @@ class ClienteCreate extends Component
 
         Cliente::create($dados);
 
-        session()->flash('success', 'Cliente cadastrado com sucesso!');
+        session()->flash(
+            'success',
+            'Cliente cadastrado com sucesso!'
+        );
 
         return redirect()->route('clientes.index');
     }
 
     public function render()
     {
-        return view('livewire.cliente.cliente-create');
+        return view(
+            'livewire.cliente.cliente-create'
+        );
     }
 }

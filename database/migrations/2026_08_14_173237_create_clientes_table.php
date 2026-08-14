@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('email', 150)->nullable();
             $table->string('cpf_cnpj', 20)->nullable();
 
+            $table->string('cep', 9)->nullable();
+
             $table->string('cidade', 100)->nullable();
             $table->string('estado', 2)->nullable();
 

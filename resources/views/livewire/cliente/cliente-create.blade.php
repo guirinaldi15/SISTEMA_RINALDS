@@ -2,7 +2,10 @@
 
     <div class="mb-4">
 
-        <a href="{{ route('clientes.index') }}" class="text-decoration-none">
+        <a
+            href="{{ route('clientes.index') }}"
+            class="text-decoration-none"
+        >
             ← Voltar
         </a>
 
@@ -24,6 +27,7 @@
 
                 <div class="row g-3">
 
+                    {{-- Nome --}}
                     <div class="col-md-8">
 
                         <label class="form-label">
@@ -34,6 +38,7 @@
                             type="text"
                             wire:model="nome"
                             class="form-control @error('nome') is-invalid @enderror"
+                            placeholder="Nome completo"
                         >
 
                         @error('nome')
@@ -44,6 +49,7 @@
 
                     </div>
 
+                    {{-- Telefone --}}
                     <div class="col-md-4">
 
                         <label class="form-label">
@@ -65,6 +71,7 @@
 
                     </div>
 
+                    {{-- Email --}}
                     <div class="col-md-6">
 
                         <label class="form-label">
@@ -75,6 +82,7 @@
                             type="email"
                             wire:model="email"
                             class="form-control @error('email') is-invalid @enderror"
+                            placeholder="cliente@email.com"
                         >
 
                         @error('email')
@@ -85,6 +93,7 @@
 
                     </div>
 
+                    {{-- CPF / CNPJ --}}
                     <div class="col-md-6">
 
                         <label class="form-label">
@@ -95,11 +104,38 @@
                             type="text"
                             wire:model="cpf_cnpj"
                             class="form-control"
+                            placeholder="CPF ou CNPJ"
                         >
 
                     </div>
 
-                    <div class="col-md-8">
+                    {{-- CEP --}}
+                    <div class="col-md-4">
+
+                        <label class="form-label">
+                            CEP
+                        </label>
+
+                        <input
+                            type="text"
+                            id="cep"
+                            wire:model="cep"
+                            class="form-control @error('cep') is-invalid @enderror"
+                            placeholder="00000-000"
+                            maxlength="9"
+                            onblur="buscarCep()"
+                        >
+
+                        @error('cep')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+
+                    </div>
+
+                    {{-- Cidade --}}
+                    <div class="col-md-6">
 
                         <label class="form-label">
                             Cidade
@@ -107,43 +143,34 @@
 
                         <input
                             type="text"
+                            id="cidade"
                             wire:model="cidade"
                             class="form-control"
+                            placeholder="Cidade"
                         >
 
                     </div>
 
-                    <div class="col-md-4">
+                    {{-- Estado --}}
+                    <div class="col-md-2">
 
                         <label class="form-label">
                             Estado
                         </label>
 
-                        <select
+                        <input
+                            type="text"
+                            id="estado"
                             wire:model="estado"
-                            class="form-select"
+                            class="form-control"
+                            placeholder="UF"
+                            maxlength="2"
+                            readonly
                         >
-
-                            <option value="SP">
-                                SP
-                            </option>
-
-                            <option value="PR">
-                                PR
-                            </option>
-
-                            <option value="MS">
-                                MS
-                            </option>
-
-                            <option value="MG">
-                                MG
-                            </option>
-
-                        </select>
 
                     </div>
 
+                    {{-- Observações --}}
                     <div class="col-12">
 
                         <label class="form-label">
@@ -154,6 +181,7 @@
                             wire:model="observacoes"
                             class="form-control"
                             rows="4"
+                            placeholder="Informações adicionais..."
                         ></textarea>
 
                     </div>
@@ -183,5 +211,91 @@
         </div>
 
     </div>
+
+    <script>
+        async function buscarCep() {
+
+            let cepInput =
+                document.getElementById('cep');
+
+            let cep =
+                cepInput.value.replace(/\D/g, '');
+
+            if (cep.length === 0) {
+                return;
+            }
+
+            if (cep.length !== 8) {
+
+                alert('CEP inválido.');
+
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `https://viacep.com.br/ws/${cep}/json/`
+                );
+
+                const dados =
+                    await response.json();
+
+                if (dados.erro) {
+
+                    alert('CEP não encontrado.');
+
+                    return;
+                }
+
+                const cidade =
+                    document.getElementById('cidade');
+
+                const estado =
+                    document.getElementById('estado');
+
+                cidade.value =
+                    dados.localidade ?? '';
+
+                estado.value =
+                    dados.uf ?? '';
+
+                cidade.dispatchEvent(
+                    new Event(
+                        'input',
+                        { bubbles: true }
+                    )
+                );
+
+                estado.dispatchEvent(
+                    new Event(
+                        'input',
+                        { bubbles: true }
+                    )
+                );
+
+                cepInput.value =
+                    cep.replace(
+                        /^(\d{5})(\d{3})$/,
+                        '$1-$2'
+                    );
+
+                cepInput.dispatchEvent(
+                    new Event(
+                        'input',
+                        { bubbles: true }
+                    )
+                );
+
+            } catch (erro) {
+
+                alert(
+                    'Não foi possível consultar o CEP.'
+                );
+
+                console.error(erro);
+            }
+        }
+    </script>
 
 </div>
