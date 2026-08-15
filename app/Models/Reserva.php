@@ -8,6 +8,7 @@ class Reserva extends Model
 {
     protected $fillable = [
         'cliente_id',
+        'atendimento_id',
         'data_evento',
         'tipo_evento',
         'quantidade_convidados',
@@ -25,6 +26,15 @@ class Reserva extends Model
 
     public function cliente()
     {
-        return $this->belongsTo(Cliente::class);
+        return $this->belongsTo(
+            Cliente::class
+        );
+    }
+
+    public function atendimento()
+    {
+        return $this->belongsTo(
+            Atendimento::class
+        );
     }
 }

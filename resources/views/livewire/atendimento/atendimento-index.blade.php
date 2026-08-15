@@ -1,9 +1,12 @@
-<div class="container py-4">
+<div class="container-fluid py-4 px-4">
 
     {{-- Cabeçalho --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div
+        class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
+    >
 
         <div>
+
             <h2 class="fw-bold mb-1">
                 Atendimentos
             </h2>
@@ -11,7 +14,9 @@
             <p class="text-muted mb-0">
                 Acompanhe os clientes interessados na Chácara Rinald's.
             </p>
+
         </div>
+
 
         <a
             href="{{ route('atendimentos.create') }}"
@@ -23,7 +28,7 @@
     </div>
 
 
-    {{-- Mensagem de sucesso --}}
+    {{-- Sucesso --}}
     @if(session('success'))
 
         <div class="alert alert-success">
@@ -39,6 +44,7 @@
         <div class="card-body">
 
             <div class="row g-3">
+
 
                 {{-- Pesquisa --}}
                 <div class="col-md-8">
@@ -129,21 +135,34 @@
 
                     </thead>
 
+
                     <tbody>
 
-                        @forelse($atendimentos as $atendimento)
+                        @forelse(
+                            $atendimentos
+                            as $atendimento
+                        )
 
                             <tr>
+
 
                                 {{-- Cliente --}}
                                 <td>
 
                                     <div class="fw-semibold">
-                                        {{ $atendimento->cliente->nome }}
+
+                                        {{ $atendimento
+                                            ->cliente
+                                            ->nome }}
+
                                     </div>
 
                                     <small class="text-muted">
-                                        {{ $atendimento->cliente->telefone }}
+
+                                        {{ $atendimento
+                                            ->cliente
+                                            ->telefone }}
+
                                     </small>
 
                                 </td>
@@ -152,59 +171,96 @@
                                 {{-- Origem --}}
                                 <td>
 
-                                    @if($atendimento->origem === 'WhatsApp')
+                                    @switch($atendimento->origem)
 
-                                        <span class="badge bg-success">
-                                            WhatsApp
-                                        </span>
+                                        @case('WhatsApp')
 
-                                    @elseif($atendimento->origem === 'Instagram')
+                                            <span
+                                                class="badge bg-success"
+                                            >
+                                                WhatsApp
+                                            </span>
 
-                                        <span class="badge bg-danger">
-                                            Instagram
-                                        </span>
+                                        @break
 
-                                    @elseif($atendimento->origem === 'Telefone')
 
-                                        <span class="badge bg-primary">
-                                            Telefone
-                                        </span>
+                                        @case('Instagram')
 
-                                    @elseif($atendimento->origem === 'Indicação')
+                                            <span
+                                                class="badge bg-danger"
+                                            >
+                                                Instagram
+                                            </span>
 
-                                        <span class="badge bg-warning text-dark">
-                                            Indicação
-                                        </span>
+                                        @break
 
-                                    @elseif($atendimento->origem === 'Presencial')
 
-                                        <span class="badge bg-secondary">
-                                            Presencial
-                                        </span>
+                                        @case('Telefone')
 
-                                    @else
+                                            <span
+                                                class="badge bg-primary"
+                                            >
+                                                Telefone
+                                            </span>
 
-                                        <span class="badge bg-dark">
-                                            {{ $atendimento->origem }}
-                                        </span>
+                                        @break
 
-                                    @endif
+
+                                        @case('Indicação')
+
+                                            <span
+                                                class="badge bg-warning text-dark"
+                                            >
+                                                Indicação
+                                            </span>
+
+                                        @break
+
+
+                                        @case('Presencial')
+
+                                            <span
+                                                class="badge bg-secondary"
+                                            >
+                                                Presencial
+                                            </span>
+
+                                        @break
+
+
+                                        @default
+
+                                            <span
+                                                class="badge bg-dark"
+                                            >
+                                                {{ $atendimento->origem }}
+                                            </span>
+
+                                    @endswitch
 
                                 </td>
 
 
                                 {{-- Evento --}}
                                 <td>
-                                    {{ $atendimento->tipo_evento ?? '-' }}
+
+                                    {{ $atendimento
+                                        ->tipo_evento
+                                        ?? '-' }}
+
                                 </td>
 
 
                                 {{-- Data --}}
                                 <td>
 
-                                    @if($atendimento->data_evento)
+                                    @if(
+                                        $atendimento->data_evento
+                                    )
 
-                                        {{ $atendimento->data_evento->format('d/m/Y') }}
+                                        {{ $atendimento
+                                            ->data_evento
+                                            ->format('d/m/Y') }}
 
                                     @else
 
@@ -224,7 +280,9 @@
 
                                         @case('novo')
 
-                                            <span class="badge bg-primary">
+                                            <span
+                                                class="badge bg-primary"
+                                            >
                                                 Novo
                                             </span>
 
@@ -233,7 +291,9 @@
 
                                         @case('aguardando_data')
 
-                                            <span class="badge bg-info text-dark">
+                                            <span
+                                                class="badge bg-info text-dark"
+                                            >
                                                 Aguardando data
                                             </span>
 
@@ -242,7 +302,9 @@
 
                                         @case('orcamento_enviado')
 
-                                            <span class="badge bg-warning text-dark">
+                                            <span
+                                                class="badge bg-warning text-dark"
+                                            >
                                                 Orçamento enviado
                                             </span>
 
@@ -251,7 +313,9 @@
 
                                         @case('aguardando_cliente')
 
-                                            <span class="badge bg-warning text-dark">
+                                            <span
+                                                class="badge bg-warning text-dark"
+                                            >
                                                 Aguardando cliente
                                             </span>
 
@@ -260,7 +324,9 @@
 
                                         @case('negociacao')
 
-                                            <span class="badge bg-secondary">
+                                            <span
+                                                class="badge bg-secondary"
+                                            >
                                                 Negociação
                                             </span>
 
@@ -269,7 +335,9 @@
 
                                         @case('fechado')
 
-                                            <span class="badge bg-success">
+                                            <span
+                                                class="badge bg-success"
+                                            >
                                                 Fechado
                                             </span>
 
@@ -278,7 +346,9 @@
 
                                         @case('perdido')
 
-                                            <span class="badge bg-danger">
+                                            <span
+                                                class="badge bg-danger"
+                                            >
                                                 Perdido
                                             </span>
 
@@ -292,11 +362,16 @@
                                 {{-- Último contato --}}
                                 <td>
 
-                                    @if($atendimento->ultimo_contato)
+                                    @if(
+                                        $atendimento
+                                            ->ultimo_contato
+                                    )
 
                                         {{ $atendimento
                                             ->ultimo_contato
-                                            ->format('d/m/Y H:i') }}
+                                            ->format(
+                                                'd/m/Y H:i'
+                                            ) }}
 
                                     @else
 
@@ -314,62 +389,104 @@
 
                                     @php
 
-                                        $telefone = preg_replace(
-                                            '/\D/',
-                                            '',
-                                            $atendimento->cliente->telefone
-                                        );
+                                        $telefone =
+                                            preg_replace(
+                                                '/\D/',
+                                                '',
+                                                $atendimento
+                                                    ->cliente
+                                                    ->telefone
+                                            );
 
                                     @endphp
 
 
-                                    {{-- Criar lembrete --}}
-                                    <a
-                                        href="{{ route(
-                                            'lembretes.create',
-                                            [
-                                                'atendimento' =>
+                                    <div
+                                        class="d-flex justify-content-end gap-1 flex-wrap"
+                                    >
+
+
+                                        {{-- Criar Reserva --}}
+
+                                        @if(
+                                            !$atendimento->reserva
+                                        )
+
+                                            <a
+                                                href="{{ route(
+                                                    'reservas.create',
+                                                    [
+                                                        'atendimento'
+                                                        =>
+                                                        $atendimento->id
+                                                    ]
+                                                ) }}"
+                                                class="btn btn-sm btn-primary"
+                                            >
+                                                🎉 Criar Reserva
+                                            </a>
+
+                                        @else
+
+                                            <span
+                                                class="badge bg-success d-flex align-items-center"
+                                            >
+                                                ✓ Reservado
+                                            </span>
+
+                                        @endif
+
+
+                                        {{-- Lembrete --}}
+                                        <a
+                                            href="{{ route(
+                                                'lembretes.create',
+                                                [
+                                                    'atendimento'
+                                                    =>
                                                     $atendimento->id
-                                            ]
-                                        ) }}"
-                                        class="btn btn-sm btn-outline-warning mb-1"
-                                    >
-                                        ⏰ Lembrar
-                                    </a>
+                                                ]
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-warning"
+                                        >
+                                            ⏰ Lembrar
+                                        </a>
 
 
-                                    {{-- WhatsApp --}}
-                                    <a
-                                        href="https://wa.me/55{{ $telefone }}"
-                                        target="_blank"
-                                        class="btn btn-sm btn-success mb-1"
-                                    >
-                                        WhatsApp
-                                    </a>
+                                        {{-- WhatsApp --}}
+                                        <a
+                                            href="https://wa.me/55{{ $telefone }}"
+                                            target="_blank"
+                                            class="btn btn-sm btn-success"
+                                        >
+                                            WhatsApp
+                                        </a>
 
 
-                                    {{-- Editar --}}
-                                    <a
-                                        href="{{ route(
-                                            'atendimentos.edit',
-                                            $atendimento->id
-                                        ) }}"
-                                        class="btn btn-sm btn-outline-primary mb-1"
-                                    >
-                                        Editar
-                                    </a>
+                                        {{-- Editar --}}
+                                        <a
+                                            href="{{ route(
+                                                'atendimentos.edit',
+                                                $atendimento->id
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-primary"
+                                        >
+                                            Editar
+                                        </a>
 
 
-                                    {{-- Excluir --}}
-                                    <a
-                                        href="{{ route(
-                                            'atendimentos.delete',
-                                            $atendimento->id
-                                        ) }}"
-                                        class="btn btn-sm btn-outline-danger mb-1"
-                                    >
-                                        Excluir
-                                    </a>
+                                        {{-- Excluir --}}
+                                        <a
+                                            href="{{ route(
+                                                'atendimentos.delete',
+                                                $atendimento->id
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-danger"
+                                        >
+                                            Excluir
+                                        </a>
+
+                                    </div>
 
                                 </td>
 
@@ -383,6 +500,10 @@
                                     colspan="7"
                                     class="text-center text-muted py-5"
                                 >
+
+                                    <div class="fs-3 mb-2">
+                                        💬
+                                    </div>
 
                                     Nenhum atendimento encontrado.
 

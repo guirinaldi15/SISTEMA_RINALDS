@@ -22,13 +22,24 @@ class Atendimento extends Model
         'ultimo_contato' => 'datetime',
     ];
 
-    public function cliente()
-    {
-        return $this->belongsTo(Cliente::class);
-    }
+   public function cliente()
+{
+    return $this->belongsTo(
+        Cliente::class
+    );
+}
 
-    public function lembretes()
-    {
-        return $this->hasMany(Lembrete::class);
-    }
+public function lembretes()
+{
+    return $this->hasMany(
+        Lembrete::class
+    );
+}
+
+public function reserva()
+{
+    return $this->hasOne(
+        Reserva::class
+    );
+}
 }
