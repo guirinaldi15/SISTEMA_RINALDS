@@ -26,6 +26,10 @@ use App\Livewire\Orcamento\OrcamentoCreate;
 use App\Livewire\Orcamento\OrcamentoEdit;
 use App\Livewire\Orcamento\OrcamentoDelete;
 use App\Livewire\Orcamento\OrcamentoShow;
+use App\Livewire\Pagamento\PagamentoIndex;
+use App\Livewire\Pagamento\PagamentoCreate;
+use App\Livewire\Pagamento\PagamentoEdit;
+use App\Livewire\Pagamento\PagamentoDelete;
 
 // =============================
 // INÍCIO
@@ -196,3 +200,30 @@ Route::get(
     '/orcamentos/{id}',
     OrcamentoShow::class
 )->name('orcamentos.show');
+
+// =============================
+// FINANCEIRO / PAGAMENTOS
+// =============================
+
+Route::get(
+    '/financeiro',
+    PagamentoIndex::class
+)->name('pagamentos.index');
+
+
+Route::get(
+    '/financeiro/novo',
+    PagamentoCreate::class
+)->name('pagamentos.create');
+
+
+Route::get(
+    '/financeiro/{id}/editar',
+    PagamentoEdit::class
+)->name('pagamentos.edit');
+
+
+Route::get(
+    '/financeiro/{id}/excluir',
+    PagamentoDelete::class
+)->name('pagamentos.delete');

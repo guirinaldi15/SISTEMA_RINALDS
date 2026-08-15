@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 
 <head>
@@ -15,16 +14,13 @@
         Rinald's Gestão
     </title>
 
-
     {{-- Bootstrap --}}
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
-
     @livewireStyles
-
 
     <style>
 
@@ -46,22 +42,21 @@
 
         .sidebar-brand {
             padding: 24px;
-            border-bottom:
-                1px solid rgba(255,255,255,.1);
+            border-bottom: 1px solid rgba(255,255,255,.1);
         }
 
         .sidebar-link {
             display: block;
             padding: 12px 24px;
             margin: 3px 10px;
-            color: rgba(255,255,255,.8);
+            color: rgba(255,255,255,.82);
             text-decoration: none;
             border-radius: 8px;
+            transition: .2s;
         }
 
         .sidebar-link:hover {
-            background:
-                rgba(255,255,255,.1);
+            background: rgba(255,255,255,.1);
             color: white;
         }
 
@@ -77,13 +72,17 @@
         }
 
         .topbar {
-            height: 70px;
+            min-height: 70px;
             background: white;
             border-bottom: 1px solid #e9ecef;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 30px;
+        }
+
+        .topbar-title {
+            font-weight: 600;
         }
 
         @media(max-width: 991px) {
@@ -96,6 +95,10 @@
                 margin-left: 0;
             }
 
+            .topbar {
+                padding: 0 18px;
+            }
+
         }
 
     </style>
@@ -105,13 +108,11 @@
 
 <body>
 
-
     {{-- ========================================================= --}}
     {{-- SIDEBAR --}}
     {{-- ========================================================= --}}
 
     <aside class="sidebar">
-
 
         <div class="sidebar-brand">
 
@@ -119,9 +120,7 @@
                 RINALD'S
             </h4>
 
-            <small
-                class="text-white-50"
-            >
+            <small class="text-white-50">
                 Festas & Eventos
             </small>
 
@@ -130,7 +129,7 @@
 
         <div class="py-3">
 
-
+            {{-- Dashboard --}}
             <a
                 href="{{ route('dashboard') }}"
                 class="sidebar-link
@@ -142,6 +141,7 @@
             </a>
 
 
+            {{-- Atendimentos --}}
             <a
                 href="{{ route('atendimentos.index') }}"
                 class="sidebar-link
@@ -153,6 +153,31 @@
             </a>
 
 
+            {{-- Orçamentos --}}
+            <a
+                href="{{ route('orcamentos.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('orcamentos.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                💰 Orçamentos
+            </a>
+
+
+            {{-- Financeiro --}}
+            <a
+                href="{{ route('pagamentos.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('pagamentos.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                💳 Financeiro
+            </a>
+
+
+            {{-- Clientes --}}
             <a
                 href="{{ route('clientes.index') }}"
                 class="sidebar-link
@@ -164,6 +189,7 @@
             </a>
 
 
+            {{-- Agenda --}}
             <a
                 href="{{ route('agenda.index') }}"
                 class="sidebar-link
@@ -175,6 +201,7 @@
             </a>
 
 
+            {{-- Reservas --}}
             <a
                 href="{{ route('reservas.index') }}"
                 class="sidebar-link
@@ -186,6 +213,7 @@
             </a>
 
 
+            {{-- Lembretes --}}
             <a
                 href="{{ route('lembretes.index') }}"
                 class="sidebar-link
@@ -196,9 +224,7 @@
                 🔔 Lembretes
             </a>
 
-
         </div>
-
 
     </aside>
 
@@ -209,15 +235,12 @@
 
     <div class="main-content">
 
-
-        {{-- NAVBAR --}}
-
+        {{-- Navbar --}}
         <nav class="topbar">
-
 
             <div>
 
-                <span class="fw-semibold">
+                <span class="topbar-title">
                     Rinald's Gestão
                 </span>
 
@@ -236,37 +259,32 @@
                     🔔
                 </a>
 
-
                 <span class="text-muted">
                     Administração
                 </span>
 
             </div>
 
-
         </nav>
 
 
-        {{-- CONTEÚDO DA PÁGINA --}}
-
+        {{-- Conteúdo da página --}}
         <main>
 
             {{ $slot }}
 
         </main>
 
-
     </div>
 
 
+    {{-- Bootstrap --}}
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     >
     </script>
 
-
     @livewireScripts
-
 
 </body>
 

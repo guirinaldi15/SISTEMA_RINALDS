@@ -37,4 +37,34 @@ class Reserva extends Model
             Atendimento::class
         );
     }
+
+    public function pagamentos()
+    {
+        return $this->hasMany(
+            Pagamento::class
+        );
+    }
+
+    public function getTotalPagoAttribute()
+    {
+        return (float) $this->pagamentos
+            ->where('status', 'pago')
+            ->sum('valor');
+    }
+
+    public function getSaldoRestanteAttribute()
+    {
+        return max(
+            0,
+            (float) $this->valor_total
+            - $this->total_pago
+        );
+    }
+
+    public function getQuitadaAttribute()
+    {
+        return
+            (float) $this->valor_total > 0
+            && $this->saldo_restante <= 0;
+    }
 }
