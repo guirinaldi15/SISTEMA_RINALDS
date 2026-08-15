@@ -1,6 +1,10 @@
 <?php
 
 use App\Livewire\Agenda\AgendaIndex;
+use App\Livewire\Atendimento\AtendimentoCreate;
+use App\Livewire\Atendimento\AtendimentoDelete;
+use App\Livewire\Atendimento\AtendimentoEdit;
+use App\Livewire\Atendimento\AtendimentoIndex;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Cliente\ClienteIndex;
@@ -82,3 +86,30 @@ Route::get(
     '/agenda',
     AgendaIndex::class
 )->name('agenda.index');
+
+// =============================
+// ATENDIMENTOS
+// =============================
+
+Route::get(
+    '/atendimentos',
+    AtendimentoIndex::class
+)->name('atendimentos.index');
+
+
+Route::get(
+    '/atendimentos/novo',
+    AtendimentoCreate::class
+)->name('atendimentos.create');
+
+
+Route::get(
+    '/atendimentos/{id}/editar',
+    AtendimentoEdit::class
+)->name('atendimentos.edit');
+
+
+Route::get(
+    '/atendimentos/{id}/excluir',
+    AtendimentoDelete::class
+)->name('atendimentos.delete');

@@ -21,4 +21,9 @@ class Cliente extends Model
     {
         return $this->hasMany(Reserva::class);
     }
+
+    public function atendimentos()
+    {
+        return $this->hasMany(Atendimento::class);
+    }
 }
