@@ -20,7 +20,8 @@ class AtendimentoIndex extends Component
             ->with([
                 'cliente',
                 'lembretes',
-                'reserva'
+                'reserva',
+                'orcamentos'
             ])
 
             ->when(
@@ -35,21 +36,19 @@ class AtendimentoIndex extends Component
                                 'nome',
                                 'like',
                                 '%' .
-                                $this->search .
-                                '%'
+                                    $this->search .
+                                    '%'
                             )
 
-                            ->orWhere(
-                                'telefone',
-                                'like',
-                                '%' .
-                                $this->search .
-                                '%'
-                            );
-
+                                ->orWhere(
+                                    'telefone',
+                                    'like',
+                                    '%' .
+                                        $this->search .
+                                        '%'
+                                );
                         }
                     );
-
                 }
             )
 
@@ -61,7 +60,6 @@ class AtendimentoIndex extends Component
                         'status',
                         $this->status
                     );
-
                 }
             )
 

@@ -21,6 +21,10 @@ use App\Livewire\Reserva\ReservaEdit;
 use App\Livewire\Reserva\ReservaDelete;
 use App\Livewire\Dashboard\DashboardIndex;
 use App\Livewire\Cliente\ClienteShow;
+use App\Livewire\Orcamento\OrcamentoIndex;
+use App\Livewire\Orcamento\OrcamentoCreate;
+use App\Livewire\Orcamento\OrcamentoEdit;
+use App\Livewire\Orcamento\OrcamentoDelete;
 
 
 // =============================
@@ -38,32 +42,6 @@ Route::get(
 )->name('dashboard.index');
 
 
-// =============================
-// CLIENTES
-// =============================
-
-Route::get(
-    '/clientes',
-    ClienteIndex::class
-)->name('clientes.index');
-
-
-Route::get(
-    '/clientes/novo',
-    ClienteCreate::class
-)->name('clientes.create');
-
-
-Route::get(
-    '/clientes/{id}/editar',
-    ClienteEdit::class
-)->name('clientes.edit');
-
-
-Route::get(
-    '/clientes/{id}/excluir',
-    ClienteDelete::class
-)->name('clientes.delete');
 
 
 // =============================
@@ -185,3 +163,31 @@ Route::get(
     '/clientes/{id}',
     ClienteShow::class
 )->name('clientes.show');
+
+
+// =============================
+// ORÇAMENTOS
+// =============================
+
+Route::get(
+    '/orcamentos',
+    OrcamentoIndex::class
+)->name('orcamentos.index');
+
+
+Route::get(
+    '/orcamentos/novo',
+    OrcamentoCreate::class
+)->name('orcamentos.create');
+
+
+Route::get(
+    '/orcamentos/{id}/editar',
+    OrcamentoEdit::class
+)->name('orcamentos.edit');
+
+
+Route::get(
+    '/orcamentos/{id}/excluir',
+    OrcamentoDelete::class
+)->name('orcamentos.delete');

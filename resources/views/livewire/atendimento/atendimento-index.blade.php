@@ -1,6 +1,9 @@
 <div class="container-fluid py-4 px-4">
 
-    {{-- Cabeçalho --}}
+    {{-- ====================================================== --}}
+    {{-- CABEÇALHO --}}
+    {{-- ====================================================== --}}
+
     <div
         class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
     >
@@ -28,7 +31,10 @@
     </div>
 
 
-    {{-- Sucesso --}}
+    {{-- ====================================================== --}}
+    {{-- MENSAGEM DE SUCESSO --}}
+    {{-- ====================================================== --}}
+
     @if(session('success'))
 
         <div class="alert alert-success">
@@ -38,13 +44,15 @@
     @endif
 
 
-    {{-- Filtros --}}
+    {{-- ====================================================== --}}
+    {{-- FILTROS --}}
+    {{-- ====================================================== --}}
+
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body">
 
             <div class="row g-3">
-
 
                 {{-- Pesquisa --}}
                 <div class="col-md-8">
@@ -110,7 +118,10 @@
     </div>
 
 
-    {{-- Tabela --}}
+    {{-- ====================================================== --}}
+    {{-- TABELA --}}
+    {{-- ====================================================== --}}
+
     <div class="card border-0 shadow-sm">
 
         <div class="card-body">
@@ -138,46 +149,32 @@
 
                     <tbody>
 
-                        @forelse(
-                            $atendimentos
-                            as $atendimento
-                        )
+                        @forelse($atendimentos as $atendimento)
 
                             <tr>
 
-
-                                {{-- Cliente --}}
+                                {{-- CLIENTE --}}
                                 <td>
 
                                     <div class="fw-semibold">
-
-                                        {{ $atendimento
-                                            ->cliente
-                                            ->nome }}
-
+                                        {{ $atendimento->cliente->nome }}
                                     </div>
 
                                     <small class="text-muted">
-
-                                        {{ $atendimento
-                                            ->cliente
-                                            ->telefone }}
-
+                                        {{ $atendimento->cliente->telefone }}
                                     </small>
 
                                 </td>
 
 
-                                {{-- Origem --}}
+                                {{-- ORIGEM --}}
                                 <td>
 
                                     @switch($atendimento->origem)
 
                                         @case('WhatsApp')
 
-                                            <span
-                                                class="badge bg-success"
-                                            >
+                                            <span class="badge bg-success">
                                                 WhatsApp
                                             </span>
 
@@ -186,9 +183,7 @@
 
                                         @case('Instagram')
 
-                                            <span
-                                                class="badge bg-danger"
-                                            >
+                                            <span class="badge bg-danger">
                                                 Instagram
                                             </span>
 
@@ -197,9 +192,7 @@
 
                                         @case('Telefone')
 
-                                            <span
-                                                class="badge bg-primary"
-                                            >
+                                            <span class="badge bg-primary">
                                                 Telefone
                                             </span>
 
@@ -208,9 +201,7 @@
 
                                         @case('Indicação')
 
-                                            <span
-                                                class="badge bg-warning text-dark"
-                                            >
+                                            <span class="badge bg-warning text-dark">
                                                 Indicação
                                             </span>
 
@@ -219,9 +210,7 @@
 
                                         @case('Presencial')
 
-                                            <span
-                                                class="badge bg-secondary"
-                                            >
+                                            <span class="badge bg-secondary">
                                                 Presencial
                                             </span>
 
@@ -230,9 +219,7 @@
 
                                         @default
 
-                                            <span
-                                                class="badge bg-dark"
-                                            >
+                                            <span class="badge bg-dark">
                                                 {{ $atendimento->origem }}
                                             </span>
 
@@ -241,22 +228,18 @@
                                 </td>
 
 
-                                {{-- Evento --}}
+                                {{-- EVENTO --}}
                                 <td>
 
-                                    {{ $atendimento
-                                        ->tipo_evento
-                                        ?? '-' }}
+                                    {{ $atendimento->tipo_evento ?? '-' }}
 
                                 </td>
 
 
-                                {{-- Data --}}
+                                {{-- DATA --}}
                                 <td>
 
-                                    @if(
-                                        $atendimento->data_evento
-                                    )
+                                    @if($atendimento->data_evento)
 
                                         {{ $atendimento
                                             ->data_evento
@@ -273,16 +256,14 @@
                                 </td>
 
 
-                                {{-- Status --}}
+                                {{-- STATUS --}}
                                 <td>
 
                                     @switch($atendimento->status)
 
                                         @case('novo')
 
-                                            <span
-                                                class="badge bg-primary"
-                                            >
+                                            <span class="badge bg-primary">
                                                 Novo
                                             </span>
 
@@ -291,9 +272,7 @@
 
                                         @case('aguardando_data')
 
-                                            <span
-                                                class="badge bg-info text-dark"
-                                            >
+                                            <span class="badge bg-info text-dark">
                                                 Aguardando data
                                             </span>
 
@@ -302,9 +281,7 @@
 
                                         @case('orcamento_enviado')
 
-                                            <span
-                                                class="badge bg-warning text-dark"
-                                            >
+                                            <span class="badge bg-warning text-dark">
                                                 Orçamento enviado
                                             </span>
 
@@ -313,9 +290,7 @@
 
                                         @case('aguardando_cliente')
 
-                                            <span
-                                                class="badge bg-warning text-dark"
-                                            >
+                                            <span class="badge bg-warning text-dark">
                                                 Aguardando cliente
                                             </span>
 
@@ -324,9 +299,7 @@
 
                                         @case('negociacao')
 
-                                            <span
-                                                class="badge bg-secondary"
-                                            >
+                                            <span class="badge bg-secondary">
                                                 Negociação
                                             </span>
 
@@ -335,9 +308,7 @@
 
                                         @case('fechado')
 
-                                            <span
-                                                class="badge bg-success"
-                                            >
+                                            <span class="badge bg-success">
                                                 Fechado
                                             </span>
 
@@ -346,9 +317,7 @@
 
                                         @case('perdido')
 
-                                            <span
-                                                class="badge bg-danger"
-                                            >
+                                            <span class="badge bg-danger">
                                                 Perdido
                                             </span>
 
@@ -359,19 +328,14 @@
                                 </td>
 
 
-                                {{-- Último contato --}}
+                                {{-- ÚLTIMO CONTATO --}}
                                 <td>
 
-                                    @if(
-                                        $atendimento
-                                            ->ultimo_contato
-                                    )
+                                    @if($atendimento->ultimo_contato)
 
                                         {{ $atendimento
                                             ->ultimo_contato
-                                            ->format(
-                                                'd/m/Y H:i'
-                                            ) }}
+                                            ->format('d/m/Y H:i') }}
 
                                     @else
 
@@ -384,7 +348,10 @@
                                 </td>
 
 
-                                {{-- Ações --}}
+                                {{-- ====================================================== --}}
+                                {{-- AÇÕES --}}
+                                {{-- ====================================================== --}}
+
                                 <td class="text-end">
 
                                     @php
@@ -406,11 +373,24 @@
                                     >
 
 
-                                        {{-- Criar Reserva --}}
+                                        {{-- ORÇAMENTO --}}
+                                        <a
+                                            href="{{ route(
+                                                'orcamentos.create',
+                                                [
+                                                    'atendimento'
+                                                    =>
+                                                    $atendimento->id
+                                                ]
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-dark"
+                                        >
+                                            💰 Orçamento
+                                        </a>
 
-                                        @if(
-                                            !$atendimento->reserva
-                                        )
+
+                                        {{-- RESERVA --}}
+                                        @if(!$atendimento->reserva)
 
                                             <a
                                                 href="{{ route(
@@ -437,7 +417,7 @@
                                         @endif
 
 
-                                        {{-- Lembrete --}}
+                                        {{-- LEMBRETE --}}
                                         <a
                                             href="{{ route(
                                                 'lembretes.create',
@@ -453,7 +433,7 @@
                                         </a>
 
 
-                                        {{-- WhatsApp --}}
+                                        {{-- WHATSAPP --}}
                                         <a
                                             href="https://wa.me/55{{ $telefone }}"
                                             target="_blank"
@@ -463,7 +443,7 @@
                                         </a>
 
 
-                                        {{-- Editar --}}
+                                        {{-- EDITAR --}}
                                         <a
                                             href="{{ route(
                                                 'atendimentos.edit',
@@ -475,7 +455,7 @@
                                         </a>
 
 
-                                        {{-- Excluir --}}
+                                        {{-- EXCLUIR --}}
                                         <a
                                             href="{{ route(
                                                 'atendimentos.delete',
@@ -498,14 +478,27 @@
 
                                 <td
                                     colspan="7"
-                                    class="text-center text-muted py-5"
+                                    class="text-center py-5"
                                 >
 
-                                    <div class="fs-3 mb-2">
+                                    <div class="fs-1 mb-3">
                                         💬
                                     </div>
 
-                                    Nenhum atendimento encontrado.
+                                    <div class="fw-semibold">
+                                        Nenhum atendimento encontrado
+                                    </div>
+
+                                    <p class="text-muted mb-3">
+                                        Registre um atendimento para começar.
+                                    </p>
+
+                                    <a
+                                        href="{{ route('atendimentos.create') }}"
+                                        class="btn btn-success"
+                                    >
+                                        + Novo Atendimento
+                                    </a>
 
                                 </td>
 
