@@ -12,7 +12,12 @@ class AtendimentoIndex extends Component
 
     public function render()
     {
-        $atendimentos = Atendimento::with('cliente')
+        $atendimentos = Atendimento::query()
+
+            ->with([
+                'cliente',
+                'lembretes'
+            ])
 
             ->when($this->search, function ($query) {
 
@@ -23,6 +28,7 @@ class AtendimentoIndex extends Component
                         'like',
                         '%' . $this->search . '%'
                     )
+
                     ->orWhere(
                         'telefone',
                         'like',
@@ -42,7 +48,8 @@ class AtendimentoIndex extends Component
 
             })
 
-            ->latest()
+            ->orderByDesc('updated_at')
+
             ->get();
 
         return view(

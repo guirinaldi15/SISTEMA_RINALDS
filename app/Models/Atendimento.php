@@ -26,4 +26,9 @@ class Atendimento extends Model
     {
         return $this->belongsTo(Cliente::class);
     }
+
+    public function lembretes()
+    {
+        return $this->hasMany(Lembrete::class);
+    }
 }

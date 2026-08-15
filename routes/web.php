@@ -11,7 +11,10 @@ use App\Livewire\Cliente\ClienteIndex;
 use App\Livewire\Cliente\ClienteCreate;
 use App\Livewire\Cliente\ClienteEdit;
 use App\Livewire\Cliente\ClienteDelete;
-
+use App\Livewire\Lembrete\LembreteCreate;
+use App\Livewire\Lembrete\LembreteDelete;
+use App\Livewire\Lembrete\LembreteEdit;
+use App\Livewire\Lembrete\LembreteIndex;
 use App\Livewire\Reserva\ReservaIndex;
 use App\Livewire\Reserva\ReservaCreate;
 use App\Livewire\Reserva\ReservaEdit;
@@ -113,3 +116,30 @@ Route::get(
     '/atendimentos/{id}/excluir',
     AtendimentoDelete::class
 )->name('atendimentos.delete');
+
+// =============================
+// LEMBRETES
+// =============================
+
+Route::get(
+    '/lembretes',
+    LembreteIndex::class
+)->name('lembretes.index');
+
+
+Route::get(
+    '/lembretes/novo',
+    LembreteCreate::class
+)->name('lembretes.create');
+
+
+Route::get(
+    '/lembretes/{id}/editar',
+    LembreteEdit::class
+)->name('lembretes.edit');
+
+
+Route::get(
+    '/lembretes/{id}/excluir',
+    LembreteDelete::class
+)->name('lembretes.delete');

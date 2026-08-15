@@ -1,5 +1,6 @@
 <div class="container py-4">
 
+    {{-- Cabeçalho --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
@@ -22,6 +23,7 @@
     </div>
 
 
+    {{-- Mensagem de sucesso --}}
     @if(session('success'))
 
         <div class="alert alert-success">
@@ -31,12 +33,14 @@
     @endif
 
 
-    <div class="card border-0 shadow-sm">
+    {{-- Filtros --}}
+    <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body">
 
-            <div class="row g-3 mb-4">
+            <div class="row g-3">
 
+                {{-- Pesquisa --}}
                 <div class="col-md-8">
 
                     <input
@@ -48,6 +52,8 @@
 
                 </div>
 
+
+                {{-- Status --}}
                 <div class="col-md-4">
 
                     <select
@@ -93,6 +99,15 @@
 
             </div>
 
+        </div>
+
+    </div>
+
+
+    {{-- Tabela --}}
+    <div class="card border-0 shadow-sm">
+
+        <div class="card-body">
 
             <div class="table-responsive">
 
@@ -104,7 +119,7 @@
                             <th>Cliente</th>
                             <th>Origem</th>
                             <th>Evento</th>
-                            <th>Data</th>
+                            <th>Data desejada</th>
                             <th>Status</th>
                             <th>Último contato</th>
                             <th class="text-end">
@@ -120,6 +135,7 @@
 
                             <tr>
 
+                                {{-- Cliente --}}
                                 <td>
 
                                     <div class="fw-semibold">
@@ -133,16 +149,57 @@
                                 </td>
 
 
+                                {{-- Origem --}}
                                 <td>
-                                    {{ $atendimento->origem }}
+
+                                    @if($atendimento->origem === 'WhatsApp')
+
+                                        <span class="badge bg-success">
+                                            WhatsApp
+                                        </span>
+
+                                    @elseif($atendimento->origem === 'Instagram')
+
+                                        <span class="badge bg-danger">
+                                            Instagram
+                                        </span>
+
+                                    @elseif($atendimento->origem === 'Telefone')
+
+                                        <span class="badge bg-primary">
+                                            Telefone
+                                        </span>
+
+                                    @elseif($atendimento->origem === 'Indicação')
+
+                                        <span class="badge bg-warning text-dark">
+                                            Indicação
+                                        </span>
+
+                                    @elseif($atendimento->origem === 'Presencial')
+
+                                        <span class="badge bg-secondary">
+                                            Presencial
+                                        </span>
+
+                                    @else
+
+                                        <span class="badge bg-dark">
+                                            {{ $atendimento->origem }}
+                                        </span>
+
+                                    @endif
+
                                 </td>
 
 
+                                {{-- Evento --}}
                                 <td>
                                     {{ $atendimento->tipo_evento ?? '-' }}
                                 </td>
 
 
+                                {{-- Data --}}
                                 <td>
 
                                     @if($atendimento->data_evento)
@@ -151,13 +208,16 @@
 
                                     @else
 
-                                        -
+                                        <span class="text-muted">
+                                            Não informada
+                                        </span>
 
                                     @endif
 
                                 </td>
 
 
+                                {{-- Status --}}
                                 <td>
 
                                     @switch($atendimento->status)
@@ -229,21 +289,27 @@
                                 </td>
 
 
+                                {{-- Último contato --}}
                                 <td>
 
                                     @if($atendimento->ultimo_contato)
 
-                                        {{ $atendimento->ultimo_contato->format('d/m/Y H:i') }}
+                                        {{ $atendimento
+                                            ->ultimo_contato
+                                            ->format('d/m/Y H:i') }}
 
                                     @else
 
-                                        -
+                                        <span class="text-muted">
+                                            -
+                                        </span>
 
                                     @endif
 
                                 </td>
 
 
+                                {{-- Ações --}}
                                 <td class="text-end">
 
                                     @php
@@ -257,32 +323,50 @@
                                     @endphp
 
 
+                                    {{-- Criar lembrete --}}
+                                    <a
+                                        href="{{ route(
+                                            'lembretes.create',
+                                            [
+                                                'atendimento' =>
+                                                    $atendimento->id
+                                            ]
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-warning mb-1"
+                                    >
+                                        ⏰ Lembrar
+                                    </a>
+
+
+                                    {{-- WhatsApp --}}
                                     <a
                                         href="https://wa.me/55{{ $telefone }}"
                                         target="_blank"
-                                        class="btn btn-sm btn-success"
+                                        class="btn btn-sm btn-success mb-1"
                                     >
                                         WhatsApp
                                     </a>
 
 
+                                    {{-- Editar --}}
                                     <a
                                         href="{{ route(
                                             'atendimentos.edit',
                                             $atendimento->id
                                         ) }}"
-                                        class="btn btn-sm btn-outline-primary"
+                                        class="btn btn-sm btn-outline-primary mb-1"
                                     >
                                         Editar
                                     </a>
 
 
+                                    {{-- Excluir --}}
                                     <a
                                         href="{{ route(
                                             'atendimentos.delete',
                                             $atendimento->id
                                         ) }}"
-                                        class="btn btn-sm btn-outline-danger"
+                                        class="btn btn-sm btn-outline-danger mb-1"
                                     >
                                         Excluir
                                     </a>
@@ -297,9 +381,11 @@
 
                                 <td
                                     colspan="7"
-                                    class="text-center text-muted py-4"
+                                    class="text-center text-muted py-5"
                                 >
+
                                     Nenhum atendimento encontrado.
+
                                 </td>
 
                             </tr>

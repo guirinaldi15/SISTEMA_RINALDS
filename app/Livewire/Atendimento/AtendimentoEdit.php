@@ -19,7 +19,6 @@ class AtendimentoEdit extends Component
     public $observacoes;
     public $motivo_perda;
 
-
     public function mount($id)
     {
         $this->atendimento =
@@ -52,11 +51,9 @@ class AtendimentoEdit extends Component
             $this->atendimento->motivo_perda;
     }
 
-
     protected function rules()
     {
         return [
-
             'cliente_id' =>
                 'required|exists:clientes,id',
 
@@ -80,22 +77,73 @@ class AtendimentoEdit extends Component
 
             'motivo_perda' =>
                 'nullable|max:1000',
-
         ];
     }
 
+    protected $messages = [
+        'cliente_id.required' =>
+            'Selecione um cliente.',
+
+        'origem.required' =>
+            'Selecione a origem do atendimento.',
+
+        'status.required' =>
+            'Selecione um status válido.',
+    ];
 
     public function atualizar()
     {
-        $dados = $this->validate();
+        $this->validate();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Motivo da perda
+        |--------------------------------------------------------------------------
+        |
+        | Se o atendimento não estiver como perdido,
+        | limpamos automaticamente esse campo.
+        |
+        */
 
         if ($this->status !== 'perdido') {
-
-            $dados['motivo_perda'] = null;
-
+            $this->motivo_perda = null;
         }
 
-        $this->atendimento->update($dados);
+        /*
+        |--------------------------------------------------------------------------
+        | Atualização explícita
+        |--------------------------------------------------------------------------
+        |
+        | Estamos passando cada campo diretamente para evitar qualquer problema
+        | de sincronização do formulário.
+        |
+        */
+
+        $this->atendimento->update([
+            'cliente_id' => $this->cliente_id,
+
+            'origem' => $this->origem,
+
+            'tipo_evento' => $this->tipo_evento,
+
+            'data_evento' => $this->data_evento,
+
+            'status' => $this->status,
+
+            'ultimo_contato' => $this->ultimo_contato,
+
+            'observacoes' => $this->observacoes,
+
+            'motivo_perda' => $this->motivo_perda,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Atualiza o Model em memória
+        |--------------------------------------------------------------------------
+        */
+
+        $this->atendimento->refresh();
 
         session()->flash(
             'success',
@@ -105,7 +153,6 @@ class AtendimentoEdit extends Component
         return redirect()
             ->route('atendimentos.index');
     }
-
 
     public function render()
     {

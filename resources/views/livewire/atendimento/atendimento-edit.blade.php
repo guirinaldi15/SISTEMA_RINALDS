@@ -1,5 +1,6 @@
 <div class="container py-4">
 
+    {{-- Cabeçalho --}}
     <div class="mb-4">
 
         <a
@@ -20,6 +21,7 @@
     </div>
 
 
+    {{-- Card --}}
     <div class="card border-0 shadow-sm">
 
         <div class="card-body p-4">
@@ -29,62 +31,113 @@
                 <div class="row g-3">
 
 
+                    {{-- Cliente --}}
                     <div class="col-md-8">
 
-                        <label class="form-label">
-                            Cliente
+                        <label class="form-label fw-semibold">
+                            Cliente *
                         </label>
 
                         <select
-                            wire:model="cliente_id"
-                            class="form-select"
+                            wire:model.live="cliente_id"
+                            class="form-select @error('cliente_id') is-invalid @enderror"
                         >
+
+                            <option value="">
+                                Selecione um cliente
+                            </option>
 
                             @foreach($clientes as $cliente)
 
                                 <option value="{{ $cliente->id }}">
+
                                     {{ $cliente->nome }}
-                                    - {{ $cliente->telefone }}
+
+                                    @if($cliente->telefone)
+
+                                        - {{ $cliente->telefone }}
+
+                                    @endif
+
                                 </option>
 
                             @endforeach
 
                         </select>
 
+                        @error('cliente_id')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
                     </div>
 
 
+                    {{-- Origem --}}
                     <div class="col-md-4">
 
-                        <label class="form-label">
-                            Origem
+                        <label class="form-label fw-semibold">
+                            Origem *
                         </label>
 
                         <select
-                            wire:model="origem"
-                            class="form-select"
+                            wire:model.live="origem"
+                            class="form-select @error('origem') is-invalid @enderror"
                         >
 
-                            <option value="WhatsApp">WhatsApp</option>
-                            <option value="Instagram">Instagram</option>
-                            <option value="Telefone">Telefone</option>
-                            <option value="Indicação">Indicação</option>
-                            <option value="Presencial">Presencial</option>
-                            <option value="Outro">Outro</option>
+                            <option value="">
+                                Selecione
+                            </option>
+
+                            <option value="WhatsApp">
+                                WhatsApp
+                            </option>
+
+                            <option value="Instagram">
+                                Instagram
+                            </option>
+
+                            <option value="Telefone">
+                                Telefone
+                            </option>
+
+                            <option value="Indicação">
+                                Indicação
+                            </option>
+
+                            <option value="Presencial">
+                                Presencial
+                            </option>
+
+                            <option value="Outro">
+                                Outro
+                            </option>
 
                         </select>
 
+                        @error('origem')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
                     </div>
 
 
+                    {{-- Tipo do evento --}}
                     <div class="col-md-5">
 
-                        <label class="form-label">
-                            Evento
+                        <label class="form-label fw-semibold">
+                            Tipo do Evento
                         </label>
 
                         <select
-                            wire:model="tipo_evento"
+                            wire:model.live="tipo_evento"
                             class="form-select"
                         >
 
@@ -121,30 +174,32 @@
                     </div>
 
 
+                    {{-- Data --}}
                     <div class="col-md-3">
 
-                        <label class="form-label">
-                            Data
+                        <label class="form-label fw-semibold">
+                            Data desejada
                         </label>
 
                         <input
                             type="date"
-                            wire:model="data_evento"
+                            wire:model.live="data_evento"
                             class="form-control"
                         >
 
                     </div>
 
 
+                    {{-- Status --}}
                     <div class="col-md-4">
 
-                        <label class="form-label">
-                            Status
+                        <label class="form-label fw-semibold">
+                            Status *
                         </label>
 
                         <select
                             wire:model.live="status"
-                            class="form-select"
+                            class="form-select @error('status') is-invalid @enderror"
                         >
 
                             <option value="novo">
@@ -177,51 +232,64 @@
 
                         </select>
 
+                        @error('status')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
                     </div>
 
 
+                    {{-- Último contato --}}
                     <div class="col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Último contato
                         </label>
 
                         <input
                             type="datetime-local"
-                            wire:model="ultimo_contato"
+                            wire:model.live="ultimo_contato"
                             class="form-control"
                         >
 
                     </div>
 
 
+                    {{-- Observações --}}
                     <div class="col-12">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Observações
                         </label>
 
                         <textarea
-                            wire:model="observacoes"
+                            wire:model.live="observacoes"
                             class="form-control"
                             rows="4"
+                            placeholder="Informações sobre o atendimento..."
                         ></textarea>
 
                     </div>
 
 
+                    {{-- Motivo da perda --}}
                     @if($status === 'perdido')
 
                         <div class="col-12">
 
-                            <label class="form-label text-danger">
+                            <label class="form-label fw-semibold text-danger">
                                 Motivo da perda
                             </label>
 
                             <textarea
-                                wire:model="motivo_perda"
+                                wire:model.live="motivo_perda"
                                 class="form-control"
                                 rows="3"
+                                placeholder="Ex.: preço, data indisponível, cliente escolheu outro local..."
                             ></textarea>
 
                         </div>
@@ -231,6 +299,7 @@
                 </div>
 
 
+                {{-- Botões --}}
                 <div class="d-flex justify-content-end gap-2 mt-4">
 
                     <a
@@ -243,8 +312,24 @@
                     <button
                         type="submit"
                         class="btn btn-success"
+                        wire:loading.attr="disabled"
+                        wire:target="atualizar"
                     >
-                        Salvar Alterações
+
+                        <span
+                            wire:loading.remove
+                            wire:target="atualizar"
+                        >
+                            Salvar Alterações
+                        </span>
+
+                        <span
+                            wire:loading
+                            wire:target="atualizar"
+                        >
+                            Salvando...
+                        </span>
+
                     </button>
 
                 </div>
