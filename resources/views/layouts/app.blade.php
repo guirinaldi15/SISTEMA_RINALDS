@@ -131,7 +131,7 @@
 
             {{-- Dashboard --}}
             <a
-                href="{{ route('dashboard') }}"
+                href="{{ route('dashboard.index') }}"
                 class="sidebar-link
                     {{ request()->routeIs('dashboard*')
                         ? 'active'
