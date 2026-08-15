@@ -30,6 +30,7 @@ use App\Livewire\Pagamento\PagamentoIndex;
 use App\Livewire\Pagamento\PagamentoCreate;
 use App\Livewire\Pagamento\PagamentoEdit;
 use App\Livewire\Pagamento\PagamentoDelete;
+use App\Livewire\Reserva\ReservaShow;
 
 // =============================
 // INÍCIO
@@ -74,6 +75,13 @@ Route::get(
     '/reservas/{id}/excluir',
     ReservaDelete::class
 )->name('reservas.delete');
+Route::get(
+    '/reservas/{id}',
+    ReservaShow::class
+)->name('reservas.show');
+
+
+
 
 Route::get(
     '/agenda',
