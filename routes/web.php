@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Agenda\AgendaIndex;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Cliente\ClienteIndex;
@@ -76,3 +77,8 @@ Route::get(
     '/reservas/{id}/excluir',
     ReservaDelete::class
 )->name('reservas.delete');
+
+Route::get(
+    '/agenda',
+    AgendaIndex::class
+)->name('agenda.index');
