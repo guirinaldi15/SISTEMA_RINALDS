@@ -19,15 +19,22 @@ use App\Livewire\Reserva\ReservaIndex;
 use App\Livewire\Reserva\ReservaCreate;
 use App\Livewire\Reserva\ReservaEdit;
 use App\Livewire\Reserva\ReservaDelete;
+use App\Livewire\Dashboard\DashboardIndex;
 
 
 // =============================
 // INÍCIO
 // =============================
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get(
+    '/',
+    DashboardIndex::class
+)->name('dashboard');
+
+Route::get(
+    '/dashboard',
+    DashboardIndex::class
+)->name('dashboard.index');
 
 
 // =============================

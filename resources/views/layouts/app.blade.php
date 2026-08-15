@@ -1,11 +1,20 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Rinald's Gestão</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Rinald's Gestão
+    </title>
+
 
     {{-- Bootstrap --}}
     <link
@@ -13,19 +22,251 @@
         rel="stylesheet"
     >
 
+
     @livewireStyles
+
+
+    <style>
+
+        body {
+            min-height: 100vh;
+            background: #f5f6f7;
+        }
+
+        .sidebar {
+            width: 250px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: #163b2b;
+            color: white;
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            padding: 24px;
+            border-bottom:
+                1px solid rgba(255,255,255,.1);
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 12px 24px;
+            margin: 3px 10px;
+            color: rgba(255,255,255,.8);
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .sidebar-link:hover {
+            background:
+                rgba(255,255,255,.1);
+            color: white;
+        }
+
+        .sidebar-link.active {
+            background: white;
+            color: #163b2b;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 70px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+        }
+
+        @media(max-width: 991px) {
+
+            .sidebar {
+                display: none;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+        }
+
+    </style>
+
 </head>
 
-<body class="bg-light">
 
-    {{ $slot }}
+<body>
 
-    {{-- Bootstrap --}}
+
+    {{-- ========================================================= --}}
+    {{-- SIDEBAR --}}
+    {{-- ========================================================= --}}
+
+    <aside class="sidebar">
+
+
+        <div class="sidebar-brand">
+
+            <h4 class="fw-bold mb-0">
+                RINALD'S
+            </h4>
+
+            <small
+                class="text-white-50"
+            >
+                Festas & Eventos
+            </small>
+
+        </div>
+
+
+        <div class="py-3">
+
+
+            <a
+                href="{{ route('dashboard') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('dashboard*')
+                        ? 'active'
+                        : '' }}"
+            >
+                🏠 Dashboard
+            </a>
+
+
+            <a
+                href="{{ route('atendimentos.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('atendimentos.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                💬 Atendimentos
+            </a>
+
+
+            <a
+                href="{{ route('clientes.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('clientes.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                👥 Clientes
+            </a>
+
+
+            <a
+                href="{{ route('agenda.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('agenda.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                📅 Agenda
+            </a>
+
+
+            <a
+                href="{{ route('reservas.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('reservas.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                🎉 Reservas
+            </a>
+
+
+            <a
+                href="{{ route('lembretes.index') }}"
+                class="sidebar-link
+                    {{ request()->routeIs('lembretes.*')
+                        ? 'active'
+                        : '' }}"
+            >
+                🔔 Lembretes
+            </a>
+
+
+        </div>
+
+
+    </aside>
+
+
+    {{-- ========================================================= --}}
+    {{-- CONTEÚDO --}}
+    {{-- ========================================================= --}}
+
+    <div class="main-content">
+
+
+        {{-- NAVBAR --}}
+
+        <nav class="topbar">
+
+
+            <div>
+
+                <span class="fw-semibold">
+                    Rinald's Gestão
+                </span>
+
+            </div>
+
+
+            <div
+                class="d-flex align-items-center gap-3"
+            >
+
+                <a
+                    href="{{ route('lembretes.index') }}"
+                    class="text-decoration-none text-dark"
+                    title="Lembretes"
+                >
+                    🔔
+                </a>
+
+
+                <span class="text-muted">
+                    Administração
+                </span>
+
+            </div>
+
+
+        </nav>
+
+
+        {{-- CONTEÚDO DA PÁGINA --}}
+
+        <main>
+
+            {{ $slot }}
+
+        </main>
+
+
+    </div>
+
+
     <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    >
     </script>
 
+
     @livewireScripts
+
 
 </body>
 
