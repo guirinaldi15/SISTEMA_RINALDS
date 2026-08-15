@@ -1,8 +1,8 @@
 <div class="container-fluid py-4 px-4">
 
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
     {{-- CABEÇALHO --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
 
     <div
         class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
@@ -21,7 +21,7 @@
         </div>
 
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
 
             <a
                 href="{{ route('atendimentos.create') }}"
@@ -29,6 +29,7 @@
             >
                 + Atendimento
             </a>
+
 
             <a
                 href="{{ route('reservas.create') }}"
@@ -42,50 +43,124 @@
     </div>
 
 
-    {{-- ========================================================= --}}
-    {{-- ALERTA DE LEMBRETES ATRASADOS --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
+    {{-- ALERTAS --}}
+    {{-- ====================================================== --}}
 
-    @if($totalAtrasados > 0)
+    @if(
+        $totalAtrasados > 0
+        ||
+        $quantidadePagamentosAtrasados > 0
+    )
 
-        <div
-            class="alert alert-danger d-flex justify-content-between align-items-center"
-        >
+        <div class="row g-3 mb-4">
 
-            <div>
 
-                <strong>
-                    ⚠️ Você tem {{ $totalAtrasados }}
-                    {{ $totalAtrasados == 1 ? 'retorno atrasado' : 'retornos atrasados' }}
-                </strong>
+            @if($totalAtrasados > 0)
 
-                <div class="small">
-                    Existem clientes aguardando seu retorno.
+                <div class="col-lg-6">
+
+                    <div
+                        class="alert alert-danger mb-0 d-flex justify-content-between align-items-center"
+                    >
+
+                        <div>
+
+                            <strong>
+                                🔔 {{ $totalAtrasados }}
+                                {{ $totalAtrasados == 1 ? 'retorno atrasado' : 'retornos atrasados' }}
+                            </strong>
+
+                            <div class="small">
+                                Existem clientes aguardando seu retorno.
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{{ route('lembretes.index') }}"
+                            class="btn btn-danger btn-sm"
+                        >
+                            Ver
+                        </a>
+
+                    </div>
+
                 </div>
 
-            </div>
+            @endif
 
-            <a
-                href="{{ route('lembretes.index') }}"
-                class="btn btn-danger btn-sm"
-            >
-                Ver lembretes
-            </a>
+
+            @if($quantidadePagamentosAtrasados > 0)
+
+                <div class="col-lg-6">
+
+                    <div
+                        class="alert alert-warning mb-0 d-flex justify-content-between align-items-center"
+                    >
+
+                        <div>
+
+                            <strong>
+                                💳 {{ $quantidadePagamentosAtrasados }}
+                                {{ $quantidadePagamentosAtrasados == 1 ? 'pagamento atrasado' : 'pagamentos atrasados' }}
+                            </strong>
+
+                            <div class="small">
+
+                                Valor em atraso:
+
+                                <strong>
+
+                                    R$
+
+                                    {{ number_format(
+                                        $valorAtrasado,
+                                        2,
+                                        ',',
+                                        '.'
+                                    ) }}
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <a
+                            href="{{ route('pagamentos.index') }}"
+                            class="btn btn-warning btn-sm"
+                        >
+                            Ver
+                        </a>
+
+                    </div>
+
+                </div>
+
+            @endif
 
         </div>
 
     @endif
 
 
-    {{-- ========================================================= --}}
-    {{-- CARDS PRINCIPAIS --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
+    {{-- CARDS OPERACIONAIS --}}
+    {{-- ====================================================== --}}
+
+    <h5 class="fw-bold mb-3">
+        Visão geral
+    </h5>
+
 
     <div class="row g-3 mb-4">
 
 
-        {{-- Clientes --}}
-        <div class="col-12 col-sm-6 col-xl">
+        {{-- CLIENTES --}}
+        <div class="col-md-6 col-xl-3">
 
             <div class="card border-0 shadow-sm h-100">
 
@@ -129,8 +204,8 @@
         </div>
 
 
-        {{-- Atendimentos --}}
-        <div class="col-12 col-sm-6 col-xl">
+        {{-- ATENDIMENTOS --}}
+        <div class="col-md-6 col-xl-3">
 
             <div class="card border-0 shadow-sm h-100">
 
@@ -174,8 +249,8 @@
         </div>
 
 
-        {{-- Retornos --}}
-        <div class="col-12 col-sm-6 col-xl">
+        {{-- RETORNOS --}}
+        <div class="col-md-6 col-xl-3">
 
             <div class="card border-0 shadow-sm h-100">
 
@@ -196,6 +271,7 @@
                             <h2 class="fw-bold mt-2 mb-1">
                                 {{ $totalRetornosHoje }}
                             </h2>
+
 
                             @if($totalAtrasados > 0)
 
@@ -229,8 +305,8 @@
         </div>
 
 
-        {{-- Reservas --}}
-        <div class="col-12 col-sm-6 col-xl">
+        {{-- RESERVAS --}}
+        <div class="col-md-6 col-xl-3">
 
             <div class="card border-0 shadow-sm h-100">
 
@@ -262,58 +338,7 @@
                         </div>
 
                         <span class="fs-3">
-                            📅
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Valor --}}
-        <div class="col-12 col-sm-6 col-xl">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-body">
-
-                    <div
-                        class="d-flex justify-content-between align-items-start"
-                    >
-
-                        <div>
-
-                            <small
-                                class="text-muted text-uppercase fw-semibold"
-                            >
-                                Valor do mês
-                            </small>
-
-                            <h4 class="fw-bold mt-2 mb-1">
-
-                                R$
-
-                                {{ number_format(
-                                    $valorReservasMes,
-                                    2,
-                                    ',',
-                                    '.'
-                                ) }}
-
-                            </h4>
-
-                            <small class="text-muted">
-                                Reservas confirmadas
-                            </small>
-
-                        </div>
-
-                        <span class="fs-3">
-                            💰
+                            🎉
                         </span>
 
                     </div>
@@ -327,15 +352,196 @@
     </div>
 
 
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
+    {{-- FINANCEIRO --}}
+    {{-- ====================================================== --}}
+
+    <div
+        class="d-flex justify-content-between align-items-center mb-3"
+    >
+
+        <h5 class="fw-bold mb-0">
+            💳 Financeiro
+        </h5>
+
+
+        <a
+            href="{{ route('pagamentos.index') }}"
+            class="btn btn-sm btn-outline-secondary"
+        >
+            Abrir Financeiro
+        </a>
+
+    </div>
+
+
+    <div class="row g-3 mb-4">
+
+
+        {{-- RECEBIDO --}}
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small
+                        class="text-muted text-uppercase fw-semibold"
+                    >
+                        Recebido no mês
+                    </small>
+
+
+                    <h3
+                        class="fw-bold text-success mt-2 mb-1"
+                    >
+
+                        R$
+
+                        {{ number_format(
+                            $recebidoMes,
+                            2,
+                            ',',
+                            '.'
+                        ) }}
+
+                    </h3>
+
+
+                    <small class="text-muted">
+                        Pagamentos recebidos
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- A RECEBER --}}
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small
+                        class="text-muted text-uppercase fw-semibold"
+                    >
+                        A receber
+                    </small>
+
+
+                    <h3 class="fw-bold mt-2 mb-1">
+
+                        R$
+
+                        {{ number_format(
+                            $totalAReceber,
+                            2,
+                            ',',
+                            '.'
+                        ) }}
+
+                    </h3>
+
+
+                    <small class="text-muted">
+                        Pagamentos pendentes
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ATRASADOS --}}
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small
+                        class="text-muted text-uppercase fw-semibold"
+                    >
+                        Em atraso
+                    </small>
+
+
+                    <h3
+                        class="fw-bold text-danger mt-2 mb-1"
+                    >
+
+                        R$
+
+                        {{ number_format(
+                            $valorAtrasado,
+                            2,
+                            ',',
+                            '.'
+                        ) }}
+
+                    </h3>
+
+
+                    <small class="text-danger">
+
+                        {{ $quantidadePagamentosAtrasados }}
+                        {{ $quantidadePagamentosAtrasados == 1 ? 'cobrança' : 'cobranças' }}
+
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- QUITADAS --}}
+        <div class="col-md-6 col-xl-3">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div class="card-body">
+
+                    <small
+                        class="text-muted text-uppercase fw-semibold"
+                    >
+                        Reservas quitadas
+                    </small>
+
+
+                    <h2 class="fw-bold mt-2 mb-1">
+                        {{ $reservasQuitadas }}
+                    </h2>
+
+
+                    <small class="text-success">
+                        Saldo totalmente pago
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ====================================================== --}}
     {{-- RETORNOS + PRÓXIMO EVENTO --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
 
     <div class="row g-4 mb-4">
 
 
-        {{-- RETORNOS DE HOJE --}}
-
+        {{-- RETORNOS --}}
         <div class="col-lg-8">
 
             <div class="card border-0 shadow-sm h-100">
@@ -360,6 +566,7 @@
 
                         </div>
 
+
                         <a
                             href="{{ route('lembretes.index') }}"
                             class="btn btn-sm btn-outline-secondary"
@@ -374,18 +581,22 @@
 
                 <div class="card-body px-4">
 
-                    @forelse($retornosHoje as $lembrete)
+                    @forelse(
+                        $retornosHoje
+                        as $lembrete
+                    )
 
                         @php
 
-                            $telefone = preg_replace(
-                                '/\D/',
-                                '',
-                                $lembrete
-                                    ->atendimento
-                                    ->cliente
-                                    ->telefone
-                            );
+                            $telefone =
+                                preg_replace(
+                                    '/\D/',
+                                    '',
+                                    $lembrete
+                                        ->atendimento
+                                        ->cliente
+                                        ->telefone
+                                );
 
                         @endphp
 
@@ -412,24 +623,6 @@
 
                                 </small>
 
-
-                                @if($lembrete->descricao)
-
-                                    <div>
-
-                                        <small class="text-muted">
-
-                                            {{ \Illuminate\Support\Str::limit(
-                                                $lembrete->descricao,
-                                                70
-                                            ) }}
-
-                                        </small>
-
-                                    </div>
-
-                                @endif
-
                             </div>
 
 
@@ -437,13 +630,13 @@
                                 class="d-flex align-items-center gap-3"
                             >
 
-                                <span class="fw-bold">
+                                <strong>
 
                                     {{ $lembrete
                                         ->lembrar_em
                                         ->format('H:i') }}
 
-                                </span>
+                                </strong>
 
 
                                 <a
@@ -486,7 +679,6 @@
 
 
         {{-- PRÓXIMO EVENTO --}}
-
         <div class="col-lg-4">
 
             <div class="card border-0 shadow-sm h-100">
@@ -499,6 +691,7 @@
 
                     <hr>
 
+
                     @if($proximoEvento)
 
                         <div class="text-center py-3">
@@ -506,10 +699,13 @@
                             <div
                                 class="display-5 fw-bold text-success"
                             >
+
                                 {{ $proximoEvento
                                     ->data_evento
                                     ->format('d') }}
+
                             </div>
+
 
                             <div
                                 class="text-uppercase text-muted"
@@ -532,7 +728,10 @@
                             </small>
 
                             <div class="fw-semibold">
-                                {{ $proximoEvento->tipo_evento }}
+
+                                {{ $proximoEvento
+                                    ->tipo_evento }}
+
                             </div>
 
                         </div>
@@ -545,22 +744,32 @@
                             </small>
 
                             <div class="fw-semibold">
-                                {{ $proximoEvento->cliente->nome }}
+
+                                {{ $proximoEvento
+                                    ->cliente
+                                    ->nome }}
+
                             </div>
 
                         </div>
 
 
-                        @if($proximoEvento->quantidade_convidados)
+                        @if(
+                            $proximoEvento
+                                ->quantidade_convidados
+                        )
 
-                            <div class="mb-2">
+                            <div class="mb-3">
 
                                 <small class="text-muted">
                                     Convidados
                                 </small>
 
                                 <div class="fw-semibold">
-                                    {{ $proximoEvento->quantidade_convidados }}
+
+                                    {{ $proximoEvento
+                                        ->quantidade_convidados }}
+
                                 </div>
 
                             </div>
@@ -568,41 +777,31 @@
                         @endif
 
 
-                        <div class="mb-3">
+                        @if(
+                            $proximoEvento->status
+                            === 'confirmada'
+                        )
 
-                            <small class="text-muted">
-                                Status
-                            </small>
+                            <span
+                                class="badge bg-success"
+                            >
+                                Confirmada
+                            </span>
 
-                            <div>
+                        @else
 
-                                @if(
-                                    $proximoEvento->status
-                                    === 'confirmada'
-                                )
+                            <span
+                                class="badge bg-warning text-dark"
+                            >
+                                Pré-reserva
+                            </span>
 
-                                    <span class="badge bg-success">
-                                        Confirmada
-                                    </span>
-
-                                @else
-
-                                    <span
-                                        class="badge bg-warning text-dark"
-                                    >
-                                        Pré-reserva
-                                    </span>
-
-                                @endif
-
-                            </div>
-
-                        </div>
+                        @endif
 
 
                         <a
                             href="{{ route('agenda.index') }}"
-                            class="btn btn-outline-success w-100"
+                            class="btn btn-outline-success w-100 mt-4"
                         >
                             Abrir Agenda
                         </a>
@@ -619,13 +818,6 @@
                                 Nenhum próximo evento.
                             </p>
 
-                            <a
-                                href="{{ route('reservas.create') }}"
-                                class="btn btn-success"
-                            >
-                                Nova Reserva
-                            </a>
-
                         </div>
 
                     @endif
@@ -639,16 +831,302 @@
     </div>
 
 
-    {{-- ========================================================= --}}
-    {{-- ATENDIMENTOS --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
+    {{-- PAGAMENTOS --}}
+    {{-- ====================================================== --}}
 
     <div class="row g-4 mb-4">
 
 
+        {{-- PRÓXIMOS PAGAMENTOS --}}
         <div class="col-lg-7">
 
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm h-100">
+
+                <div
+                    class="card-header bg-white border-0 pt-4 px-4"
+                >
+
+                    <div
+                        class="d-flex justify-content-between align-items-center"
+                    >
+
+                        <div>
+
+                            <h5 class="fw-bold mb-1">
+                                💰 Próximos pagamentos
+                            </h5>
+
+                            <small class="text-muted">
+                                Cobranças que ainda irão vencer
+                            </small>
+
+                        </div>
+
+
+                        <a
+                            href="{{ route('pagamentos.index') }}"
+                            class="btn btn-sm btn-outline-secondary"
+                        >
+                            Ver todos
+                        </a>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="table-responsive">
+
+                        <table class="table align-middle">
+
+                            <thead>
+
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Descrição</th>
+                                    <th>Vencimento</th>
+                                    <th>Valor</th>
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody>
+
+                                @forelse(
+                                    $proximosPagamentos
+                                    as $pagamento
+                                )
+
+                                    <tr>
+
+                                        <td>
+
+                                            <div class="fw-semibold">
+
+                                                {{ $pagamento
+                                                    ->reserva
+                                                    ->cliente
+                                                    ->nome }}
+
+                                            </div>
+
+                                        </td>
+
+
+                                        <td>
+
+                                            {{ $pagamento
+                                                ->descricao }}
+
+                                        </td>
+
+
+                                        <td>
+
+                                            {{ $pagamento
+                                                ->data_vencimento
+                                                ->format('d/m/Y') }}
+
+                                        </td>
+
+
+                                        <td class="fw-semibold">
+
+                                            R$
+
+                                            {{ number_format(
+                                                $pagamento->valor,
+                                                2,
+                                                ',',
+                                                '.'
+                                            ) }}
+
+                                        </td>
+
+                                    </tr>
+
+                                @empty
+
+                                    <tr>
+
+                                        <td
+                                            colspan="4"
+                                            class="text-center text-muted py-4"
+                                        >
+                                            Nenhum pagamento futuro.
+                                        </td>
+
+                                    </tr>
+
+                                @endforelse
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- PAGAMENTOS ATRASADOS --}}
+        <div class="col-lg-5">
+
+            <div class="card border-0 shadow-sm h-100">
+
+                <div
+                    class="card-header bg-white border-0 pt-4 px-4"
+                >
+
+                    <div
+                        class="d-flex justify-content-between align-items-center"
+                    >
+
+                        <div>
+
+                            <h5 class="fw-bold mb-1">
+                                ⚠️ Pagamentos atrasados
+                            </h5>
+
+                            <small class="text-muted">
+                                Cobranças que exigem atenção
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    @forelse(
+                        $pagamentosAtrasados
+                        as $pagamento
+                    )
+
+                        <div
+                            class="border-bottom py-3"
+                        >
+
+                            <div
+                                class="d-flex justify-content-between"
+                            >
+
+                                <div>
+
+                                    <div class="fw-semibold">
+
+                                        {{ $pagamento
+                                            ->reserva
+                                            ->cliente
+                                            ->nome }}
+
+                                    </div>
+
+
+                                    <small class="text-muted">
+
+                                        {{ $pagamento
+                                            ->descricao }}
+
+                                    </small>
+
+                                </div>
+
+
+                                <div class="text-end">
+
+                                    <div
+                                        class="fw-bold text-danger"
+                                    >
+
+                                        R$
+
+                                        {{ number_format(
+                                            $pagamento->valor,
+                                            2,
+                                            ',',
+                                            '.'
+                                        ) }}
+
+                                    </div>
+
+
+                                    <small class="text-danger">
+
+                                        Venceu em
+
+                                        {{ $pagamento
+                                            ->data_vencimento
+                                            ->format('d/m/Y') }}
+
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <div class="text-center py-5">
+
+                            <div class="fs-2 mb-2">
+                                ✅
+                            </div>
+
+                            <div class="fw-semibold">
+                                Nenhuma cobrança atrasada
+                            </div>
+
+                        </div>
+
+                    @endforelse
+
+
+                    @if(
+                        $pagamentosAtrasados
+                            ->isNotEmpty()
+                    )
+
+                        <a
+                            href="{{ route('pagamentos.index') }}"
+                            class="btn btn-outline-danger w-100 mt-3"
+                        >
+                            Abrir Financeiro
+                        </a>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- ====================================================== --}}
+    {{-- ATENDIMENTOS + FUNIL --}}
+    {{-- ====================================================== --}}
+
+    <div class="row g-4 mb-4">
+
+        <div class="col-lg-7">
+
+            <div class="card border-0 shadow-sm h-100">
 
                 <div
                     class="card-header bg-white border-0 pt-4 px-4"
@@ -669,6 +1147,7 @@
                             </small>
 
                         </div>
+
 
                         <a
                             href="{{ route('atendimentos.index') }}"
@@ -712,15 +1191,19 @@
                                         <td>
 
                                             <div class="fw-semibold">
+
                                                 {{ $atendimento
                                                     ->cliente
                                                     ->nome }}
+
                                             </div>
 
                                             <small class="text-muted">
+
                                                 {{ $atendimento
                                                     ->cliente
                                                     ->telefone }}
+
                                             </small>
 
                                         </td>
@@ -737,7 +1220,9 @@
 
                                         <td>
 
-                                            @switch($atendimento->status)
+                                            @switch(
+                                                $atendimento->status
+                                            )
 
                                                 @case('novo')
 
@@ -842,7 +1327,7 @@
 
                                         <td
                                             colspan="4"
-                                            class="text-center text-muted py-4"
+                                            class="text-center py-4 text-muted"
                                         >
                                             Nenhum atendimento.
                                         </td>
@@ -865,7 +1350,6 @@
 
 
         {{-- FUNIL --}}
-
         <div class="col-lg-5">
 
             <div class="card border-0 shadow-sm h-100">
@@ -873,7 +1357,7 @@
                 <div class="card-body p-4">
 
                     <h5 class="fw-bold mb-4">
-                        📊 Funil de atendimento
+                        📊 Funil comercial
                     </h5>
 
 
@@ -882,6 +1366,7 @@
                         <div
                             class="d-flex justify-content-between mb-2"
                         >
+
                             <span>
                                 Novos
                             </span>
@@ -889,6 +1374,7 @@
                             <strong>
                                 {{ $novosAtendimentos }}
                             </strong>
+
                         </div>
 
                         <div
@@ -898,12 +1384,12 @@
 
                             <div
                                 class="progress-bar"
-                                style="width:
-                                {{
+                                style="width: {{
                                     $atendimentosAtivos > 0
-                                    ? ($novosAtendimentos
-                                        / $atendimentosAtivos)
-                                        * 100
+                                    ? (
+                                        $novosAtendimentos /
+                                        $atendimentosAtivos
+                                    ) * 100
                                     : 0
                                 }}%"
                             >
@@ -919,6 +1405,7 @@
                         <div
                             class="d-flex justify-content-between mb-2"
                         >
+
                             <span>
                                 Aguardando cliente
                             </span>
@@ -926,6 +1413,7 @@
                             <strong>
                                 {{ $aguardandoCliente }}
                             </strong>
+
                         </div>
 
                         <div
@@ -935,12 +1423,12 @@
 
                             <div
                                 class="progress-bar bg-warning"
-                                style="width:
-                                {{
+                                style="width: {{
                                     $atendimentosAtivos > 0
-                                    ? ($aguardandoCliente
-                                        / $atendimentosAtivos)
-                                        * 100
+                                    ? (
+                                        $aguardandoCliente /
+                                        $atendimentosAtivos
+                                    ) * 100
                                     : 0
                                 }}%"
                             >
@@ -956,6 +1444,7 @@
                         <div
                             class="d-flex justify-content-between mb-2"
                         >
+
                             <span>
                                 Em negociação
                             </span>
@@ -963,6 +1452,7 @@
                             <strong>
                                 {{ $emNegociacao }}
                             </strong>
+
                         </div>
 
                         <div
@@ -972,12 +1462,12 @@
 
                             <div
                                 class="progress-bar bg-success"
-                                style="width:
-                                {{
+                                style="width: {{
                                     $atendimentosAtivos > 0
-                                    ? ($emNegociacao
-                                        / $atendimentosAtivos)
-                                        * 100
+                                    ? (
+                                        $emNegociacao /
+                                        $atendimentosAtivos
+                                    ) * 100
                                     : 0
                                 }}%"
                             >
@@ -992,7 +1482,7 @@
                         href="{{ route('atendimentos.index') }}"
                         class="btn btn-outline-secondary w-100"
                     >
-                        Ver funil completo
+                        Ver atendimentos
                     </a>
 
                 </div>
@@ -1004,9 +1494,9 @@
     </div>
 
 
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
     {{-- PRÓXIMOS EVENTOS --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
 
     <div class="card border-0 shadow-sm mb-4">
 
@@ -1029,6 +1519,7 @@
                     </small>
 
                 </div>
+
 
                 <a
                     href="{{ route('agenda.index') }}"
@@ -1064,7 +1555,10 @@
 
                     <tbody>
 
-                        @forelse($proximosEventos as $reserva)
+                        @forelse(
+                            $proximosEventos
+                            as $reserva
+                        )
 
                             <tr>
 
@@ -1078,19 +1572,28 @@
 
 
                                 <td>
-                                    {{ $reserva->cliente->nome }}
+
+                                    {{ $reserva
+                                        ->cliente
+                                        ->nome }}
+
                                 </td>
 
 
                                 <td>
-                                    {{ $reserva->tipo_evento }}
+
+                                    {{ $reserva
+                                        ->tipo_evento }}
+
                                 </td>
 
 
                                 <td>
+
                                     {{ $reserva
                                         ->quantidade_convidados
                                         ?? '-' }}
+
                                 </td>
 
 
@@ -1169,9 +1672,9 @@
     </div>
 
 
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
     {{-- ACESSO RÁPIDO --}}
-    {{-- ========================================================= --}}
+    {{-- ====================================================== --}}
 
     <div class="card border-0 shadow-sm">
 
@@ -1184,7 +1687,7 @@
 
             <div class="row g-3">
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-xl-2">
 
                     <a
                         href="{{ route('clientes.index') }}"
@@ -1196,7 +1699,7 @@
                 </div>
 
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-xl-2">
 
                     <a
                         href="{{ route('atendimentos.index') }}"
@@ -1208,7 +1711,31 @@
                 </div>
 
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-xl-2">
+
+                    <a
+                        href="{{ route('orcamentos.index') }}"
+                        class="btn btn-outline-secondary w-100 py-3"
+                    >
+                        💰 Orçamentos
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-4 col-xl-2">
+
+                    <a
+                        href="{{ route('pagamentos.index') }}"
+                        class="btn btn-outline-secondary w-100 py-3"
+                    >
+                        💳 Financeiro
+                    </a>
+
+                </div>
+
+
+                <div class="col-md-4 col-xl-2">
 
                     <a
                         href="{{ route('agenda.index') }}"
@@ -1220,7 +1747,7 @@
                 </div>
 
 
-                <div class="col-md-3">
+                <div class="col-md-4 col-xl-2">
 
                     <a
                         href="{{ route('lembretes.index') }}"

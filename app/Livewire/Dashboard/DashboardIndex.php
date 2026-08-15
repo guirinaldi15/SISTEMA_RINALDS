@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Reserva;
 use App\Models\Atendimento;
 use App\Models\Lembrete;
+use App\Models\Pagamento;
 
 class DashboardIndex extends Component
 {
@@ -24,11 +25,11 @@ class DashboardIndex extends Component
             'created_at',
             now()->year
         )
-            ->whereMonth(
-                'created_at',
-                now()->month
-            )
-            ->count();
+        ->whereMonth(
+            'created_at',
+            now()->month
+        )
+        ->count();
 
 
         /*
@@ -73,16 +74,16 @@ class DashboardIndex extends Component
         $retornosHoje = Lembrete::with(
             'atendimento.cliente'
         )
-            ->whereDate(
-                'lembrar_em',
-                today()
-            )
-            ->where(
-                'status',
-                'pendente'
-            )
-            ->orderBy('lembrar_em')
-            ->get();
+        ->whereDate(
+            'lembrar_em',
+            today()
+        )
+        ->where(
+            'status',
+            'pendente'
+        )
+        ->orderBy('lembrar_em')
+        ->get();
 
 
         $totalRetornosHoje =
@@ -92,17 +93,17 @@ class DashboardIndex extends Component
         $lembretesAtrasados = Lembrete::with(
             'atendimento.cliente'
         )
-            ->where(
-                'lembrar_em',
-                '<',
-                now()
-            )
-            ->where(
-                'status',
-                'pendente'
-            )
-            ->orderBy('lembrar_em')
-            ->get();
+        ->where(
+            'lembrar_em',
+            '<',
+            now()
+        )
+        ->where(
+            'status',
+            'pendente'
+        )
+        ->orderBy('lembrar_em')
+        ->get();
 
 
         $totalAtrasados =
@@ -119,25 +120,48 @@ class DashboardIndex extends Component
             'data_evento',
             now()->year
         )
-            ->whereMonth(
-                'data_evento',
-                now()->month
-            )
-            ->whereIn(
-                'status',
-                [
-                    'pre_reserva',
-                    'confirmada',
-                    'realizada'
-                ]
-            )
-            ->count();
+        ->whereMonth(
+            'data_evento',
+            now()->month
+        )
+        ->whereIn(
+            'status',
+            [
+                'pre_reserva',
+                'confirmada',
+                'realizada'
+            ]
+        )
+        ->count();
 
 
         $reservasConfirmadas = Reserva::where(
             'status',
             'confirmada'
         )->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRÓXIMO EVENTO
+        |--------------------------------------------------------------------------
+        */
+
+        $proximoEvento = Reserva::with('cliente')
+            ->whereDate(
+                'data_evento',
+                '>=',
+                today()
+            )
+            ->whereIn(
+                'status',
+                [
+                    'pre_reserva',
+                    'confirmada'
+                ]
+            )
+            ->orderBy('data_evento')
+            ->first();
 
 
         /*
@@ -166,45 +190,89 @@ class DashboardIndex extends Component
 
         /*
         |--------------------------------------------------------------------------
-        | PRÓXIMO EVENTO
+        | FINANCEIRO - RECEBIDO NO MÊS
         |--------------------------------------------------------------------------
         */
 
-        $proximoEvento = Reserva::with('cliente')
-            ->whereDate(
-                'data_evento',
-                '>=',
-                today()
-            )
-            ->whereIn(
-                'status',
-                [
-                    'pre_reserva',
-                    'confirmada'
-                ]
-            )
-            ->orderBy('data_evento')
-            ->first();
+        $recebidoMes = Pagamento::where(
+            'status',
+            'pago'
+        )
+        ->whereNotNull(
+            'data_pagamento'
+        )
+        ->whereYear(
+            'data_pagamento',
+            now()->year
+        )
+        ->whereMonth(
+            'data_pagamento',
+            now()->month
+        )
+        ->sum('valor');
 
 
         /*
         |--------------------------------------------------------------------------
-        | FINANCEIRO BÁSICO
+        | FINANCEIRO - TOTAL A RECEBER
+        |--------------------------------------------------------------------------
+        */
+
+        $totalAReceber = Pagamento::where(
+            'status',
+            'pendente'
+        )
+        ->sum('valor');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | FINANCEIRO - TOTAL ATRASADO
+        |--------------------------------------------------------------------------
+        */
+
+        $valorAtrasado = Pagamento::where(
+            'status',
+            'pendente'
+        )
+        ->whereDate(
+            'data_vencimento',
+            '<',
+            today()
+        )
+        ->sum('valor');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | QUANTIDADE DE PAGAMENTOS ATRASADOS
+        |--------------------------------------------------------------------------
+        */
+
+        $quantidadePagamentosAtrasados =
+            Pagamento::where(
+                'status',
+                'pendente'
+            )
+            ->whereDate(
+                'data_vencimento',
+                '<',
+                today()
+            )
+            ->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RESERVAS QUITADAS
         |--------------------------------------------------------------------------
         |
-        | Aqui ainda não temos tabela de pagamentos.
-        | Portanto usamos o valor das reservas.
+        | Carregamos os pagamentos e calculamos usando os accessors
+        | do model Reserva.
         |
         */
 
-        $valorReservasMes = Reserva::whereYear(
-            'data_evento',
-            now()->year
-        )
-            ->whereMonth(
-                'data_evento',
-                now()->month
-            )
+        $reservasFinanceiras = Reserva::with('pagamentos')
             ->whereIn(
                 'status',
                 [
@@ -212,7 +280,65 @@ class DashboardIndex extends Component
                     'realizada'
                 ]
             )
-            ->sum('valor_total');
+            ->get();
+
+
+        $reservasQuitadas =
+            $reservasFinanceiras
+                ->filter(function ($reserva) {
+                    return $reserva->quitada;
+                })
+                ->count();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PRÓXIMOS PAGAMENTOS
+        |--------------------------------------------------------------------------
+        */
+
+        $proximosPagamentos = Pagamento::with([
+            'reserva.cliente'
+        ])
+        ->where(
+            'status',
+            'pendente'
+        )
+        ->whereDate(
+            'data_vencimento',
+            '>=',
+            today()
+        )
+        ->orderBy(
+            'data_vencimento'
+        )
+        ->limit(5)
+        ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PAGAMENTOS ATRASADOS
+        |--------------------------------------------------------------------------
+        */
+
+        $pagamentosAtrasados = Pagamento::with([
+            'reserva.cliente'
+        ])
+        ->where(
+            'status',
+            'pendente'
+        )
+        ->whereDate(
+            'data_vencimento',
+            '<',
+            today()
+        )
+        ->orderBy(
+            'data_vencimento'
+        )
+        ->limit(5)
+        ->get();
 
 
         /*
@@ -224,9 +350,9 @@ class DashboardIndex extends Component
         $atendimentosRecentes = Atendimento::with(
             'cliente'
         )
-            ->orderByDesc('updated_at')
-            ->limit(5)
-            ->get();
+        ->orderByDesc('updated_at')
+        ->limit(5)
+        ->get();
 
 
         /*
@@ -238,8 +364,8 @@ class DashboardIndex extends Component
         $clientesRecentes = Cliente::orderByDesc(
             'created_at'
         )
-            ->limit(5)
-            ->get();
+        ->limit(5)
+        ->get();
 
 
         return view(
@@ -247,19 +373,31 @@ class DashboardIndex extends Component
             compact(
                 'totalClientes',
                 'clientesNovosMes',
+
                 'atendimentosAtivos',
                 'novosAtendimentos',
                 'emNegociacao',
                 'aguardandoCliente',
+
                 'retornosHoje',
                 'totalRetornosHoje',
                 'lembretesAtrasados',
                 'totalAtrasados',
+
                 'reservasMes',
                 'reservasConfirmadas',
-                'proximosEventos',
                 'proximoEvento',
-                'valorReservasMes',
+                'proximosEventos',
+
+                'recebidoMes',
+                'totalAReceber',
+                'valorAtrasado',
+                'quantidadePagamentosAtrasados',
+                'reservasQuitadas',
+
+                'proximosPagamentos',
+                'pagamentosAtrasados',
+
                 'atendimentosRecentes',
                 'clientesRecentes'
             )
