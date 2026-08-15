@@ -20,6 +20,7 @@ use App\Livewire\Reserva\ReservaCreate;
 use App\Livewire\Reserva\ReservaEdit;
 use App\Livewire\Reserva\ReservaDelete;
 use App\Livewire\Dashboard\DashboardIndex;
+use App\Livewire\Cliente\ClienteShow;
 
 
 // =============================
@@ -150,3 +151,37 @@ Route::get(
     '/lembretes/{id}/excluir',
     LembreteDelete::class
 )->name('lembretes.delete');
+
+
+// =============================
+// CLIENTES
+// =============================
+
+Route::get(
+    '/clientes',
+    ClienteIndex::class
+)->name('clientes.index');
+
+
+Route::get(
+    '/clientes/novo',
+    ClienteCreate::class
+)->name('clientes.create');
+
+
+Route::get(
+    '/clientes/{id}/editar',
+    ClienteEdit::class
+)->name('clientes.edit');
+
+
+Route::get(
+    '/clientes/{id}/excluir',
+    ClienteDelete::class
+)->name('clientes.delete');
+
+
+Route::get(
+    '/clientes/{id}',
+    ClienteShow::class
+)->name('clientes.show');

@@ -97,4 +97,25 @@ class AtendimentoCreate extends Component
             compact('clientes')
         );
     }
+
+    public function mount()
+{
+    if (request()->has('cliente')) {
+
+        $clienteId =
+            request()->get('cliente');
+
+        if (
+            Cliente::where(
+                'id',
+                $clienteId
+            )->exists()
+        ) {
+
+            $this->cliente_id =
+                $clienteId;
+
+        }
+    }
+}
 }
