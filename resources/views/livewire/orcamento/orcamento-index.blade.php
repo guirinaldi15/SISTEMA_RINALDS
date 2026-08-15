@@ -1,5 +1,9 @@
 <div class="container-fluid py-4 px-4">
 
+    {{-- ====================================================== --}}
+    {{-- CABEÇALHO --}}
+    {{-- ====================================================== --}}
+
     <div
         class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
     >
@@ -11,7 +15,7 @@
             </h2>
 
             <p class="text-muted mb-0">
-                Gerencie os orçamentos da Chácara Rinald's.
+                Gerencie as propostas comerciais da Chácara Rinald's.
             </p>
 
         </div>
@@ -26,6 +30,10 @@
     </div>
 
 
+    {{-- ====================================================== --}}
+    {{-- MENSAGEM DE SUCESSO --}}
+    {{-- ====================================================== --}}
+
     @if(session('success'))
 
         <div class="alert alert-success">
@@ -35,12 +43,17 @@
     @endif
 
 
+    {{-- ====================================================== --}}
+    {{-- FILTROS --}}
+    {{-- ====================================================== --}}
+
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body">
 
             <div class="row g-3">
 
+                {{-- Pesquisa --}}
                 <div class="col-md-8">
 
                     <input
@@ -52,6 +65,8 @@
 
                 </div>
 
+
+                {{-- Status --}}
                 <div class="col-md-4">
 
                     <select
@@ -94,6 +109,10 @@
     </div>
 
 
+    {{-- ====================================================== --}}
+    {{-- TABELA --}}
+    {{-- ====================================================== --}}
+
     <div class="card border-0 shadow-sm">
 
         <div class="card-body">
@@ -118,18 +137,35 @@
 
                     </thead>
 
+
                     <tbody>
 
                         @forelse($orcamentos as $orcamento)
 
                             <tr>
 
-                                <td class="fw-semibold">
+                                {{-- ====================================================== --}}
+                                {{-- NÚMERO --}}
+                                {{-- ====================================================== --}}
 
-                                    {{ $orcamento->numero }}
+                                <td>
+
+                                    <a
+                                        href="{{ route(
+                                            'orcamentos.show',
+                                            $orcamento->id
+                                        ) }}"
+                                        class="fw-semibold text-decoration-none"
+                                    >
+                                        {{ $orcamento->numero }}
+                                    </a>
 
                                 </td>
 
+
+                                {{-- ====================================================== --}}
+                                {{-- CLIENTE --}}
+                                {{-- ====================================================== --}}
 
                                 <td>
 
@@ -141,6 +177,7 @@
                                             ->nome }}
 
                                     </div>
+
 
                                     <small class="text-muted">
 
@@ -154,15 +191,45 @@
                                 </td>
 
 
+                                {{-- ====================================================== --}}
+                                {{-- EVENTO --}}
+                                {{-- ====================================================== --}}
+
                                 <td>
 
-                                    {{ $orcamento
-                                        ->atendimento
-                                        ->tipo_evento
-                                        ?? '-' }}
+                                    <div class="fw-semibold">
+
+                                        {{ $orcamento
+                                            ->atendimento
+                                            ->tipo_evento
+                                            ?? 'Não informado' }}
+
+                                    </div>
+
+
+                                    @if(
+                                        $orcamento
+                                            ->atendimento
+                                            ->data_evento
+                                    )
+
+                                        <small class="text-muted">
+
+                                            {{ $orcamento
+                                                ->atendimento
+                                                ->data_evento
+                                                ->format('d/m/Y') }}
+
+                                        </small>
+
+                                    @endif
 
                                 </td>
 
+
+                                {{-- ====================================================== --}}
+                                {{-- VALIDADE --}}
+                                {{-- ====================================================== --}}
 
                                 <td>
 
@@ -172,28 +239,86 @@
                                             ->validade
                                             ->format('d/m/Y') }}
 
+
+                                        @if(
+                                            $orcamento->status !== 'aceito'
+                                            &&
+                                            $orcamento->status !== 'recusado'
+                                            &&
+                                            $orcamento->validade->isPast()
+                                        )
+
+                                            <div class="mt-1">
+
+                                                <span
+                                                    class="badge bg-danger"
+                                                >
+                                                    Vencido
+                                                </span>
+
+                                            </div>
+
+                                        @endif
+
                                     @else
 
-                                        -
+                                        <span class="text-muted">
+                                            Não informada
+                                        </span>
 
                                     @endif
 
                                 </td>
 
 
-                                <td class="fw-semibold">
+                                {{-- ====================================================== --}}
+                                {{-- VALOR --}}
+                                {{-- ====================================================== --}}
 
-                                    R$
+                                <td>
 
-                                    {{ number_format(
-                                        $orcamento->valor_total,
-                                        2,
-                                        ',',
-                                        '.'
-                                    ) }}
+                                    <div class="fw-bold">
+
+                                        R$
+
+                                        {{ number_format(
+                                            (float) $orcamento->valor_total,
+                                            2,
+                                            ',',
+                                            '.'
+                                        ) }}
+
+                                    </div>
+
+
+                                    @if(
+                                        $orcamento->desconto
+                                        &&
+                                        $orcamento->desconto > 0
+                                    )
+
+                                        <small class="text-success">
+
+                                            Desconto:
+                                            R$
+
+                                            {{ number_format(
+                                                (float) $orcamento->desconto,
+                                                2,
+                                                ',',
+                                                '.'
+                                            ) }}
+
+                                        </small>
+
+                                    @endif
 
                                 </td>
 
+
+                                {{-- ====================================================== --}}
+                                {{-- STATUS --}}
+                                {{-- ====================================================== --}}
 
                                 <td>
 
@@ -245,45 +370,122 @@
 
                                         @break
 
+
+                                        @default
+
+                                            <span class="badge bg-dark">
+
+                                                {{ ucfirst(
+                                                    $orcamento->status
+                                                ) }}
+
+                                            </span>
+
                                     @endswitch
 
                                 </td>
 
 
+                                {{-- ====================================================== --}}
+                                {{-- AÇÕES --}}
+                                {{-- ====================================================== --}}
+
                                 <td class="text-end">
+
+                                    @php
+
+                                        $telefone =
+                                            preg_replace(
+                                                '/\D/',
+                                                '',
+                                                $orcamento
+                                                    ->atendimento
+                                                    ->cliente
+                                                    ->telefone
+                                            );
+
+
+                                        $cliente =
+                                            $orcamento
+                                                ->atendimento
+                                                ->cliente
+                                                ->nome;
+
+
+                                        $evento =
+                                            $orcamento
+                                                ->atendimento
+                                                ->tipo_evento
+                                                ?? 'evento';
+
+
+                                        $dataEvento =
+                                            $orcamento
+                                                ->atendimento
+                                                ->data_evento
+                                                ?->format('d/m/Y');
+
+
+                                        $validade =
+                                            $orcamento
+                                                ->validade
+                                                ?->format('d/m/Y');
+
+
+                                        $valor =
+                                            number_format(
+                                                (float)
+                                                $orcamento->valor_total,
+                                                2,
+                                                ',',
+                                                '.'
+                                            );
+
+
+                                        $mensagem =
+                                            "Olá {$cliente}! Tudo bem?\n\n"
+                                            . "Preparamos o orçamento da Chácara Rinald's para seu {$evento}.\n\n"
+                                            . "📄 Orçamento: {$orcamento->numero}\n"
+                                            . (
+                                                $dataEvento
+                                                ? "📅 Data do evento: {$dataEvento}\n"
+                                                : ''
+                                            )
+                                            . "💰 Valor total: R$ {$valor}\n"
+                                            . (
+                                                $validade
+                                                ? "⏳ Validade da proposta: {$validade}\n"
+                                                : ''
+                                            )
+                                            . "\nQualquer dúvida, estamos à disposição!";
+
+
+                                        $mensagemWhatsapp =
+                                            urlencode($mensagem);
+
+                                    @endphp
+
 
                                     <div
                                         class="d-flex justify-content-end gap-1 flex-wrap"
                                     >
 
-                                        @php
 
-                                            $telefone =
-                                                preg_replace(
-                                                    '/\D/',
-                                                    '',
-                                                    $orcamento
-                                                        ->atendimento
-                                                        ->cliente
-                                                        ->telefone
-                                                );
-
-                                            $mensagem =
-                                                urlencode(
-                                                    "Olá! Segue o orçamento {$orcamento->numero} da Chácara Rinald's. Valor total: R$ "
-                                                    . number_format(
-                                                        $orcamento->valor_total,
-                                                        2,
-                                                        ',',
-                                                        '.'
-                                                    )
-                                                );
-
-                                        @endphp
-
-
+                                        {{-- Visualizar --}}
                                         <a
-                                            href="https://wa.me/55{{ $telefone }}?text={{ $mensagem }}"
+                                            href="{{ route(
+                                                'orcamentos.show',
+                                                $orcamento->id
+                                            ) }}"
+                                            class="btn btn-sm btn-outline-success"
+                                        >
+                                            Visualizar
+                                        </a>
+
+
+                                        {{-- WhatsApp --}}
+                                        <a
+                                            href="https://wa.me/55{{ $telefone }}?text={{ $mensagemWhatsapp }}"
                                             target="_blank"
                                             class="btn btn-sm btn-success"
                                         >
@@ -291,6 +493,7 @@
                                         </a>
 
 
+                                        {{-- Editar --}}
                                         <a
                                             href="{{ route(
                                                 'orcamentos.edit',
@@ -302,6 +505,7 @@
                                         </a>
 
 
+                                        {{-- Excluir --}}
                                         <a
                                             href="{{ route(
                                                 'orcamentos.delete',
@@ -324,10 +528,27 @@
 
                                 <td
                                     colspan="7"
-                                    class="text-center py-5 text-muted"
+                                    class="text-center py-5"
                                 >
 
-                                    Nenhum orçamento encontrado.
+                                    <div class="fs-1 mb-3">
+                                        💰
+                                    </div>
+
+                                    <div class="fw-semibold">
+                                        Nenhum orçamento encontrado
+                                    </div>
+
+                                    <p class="text-muted mb-3">
+                                        Crie seu primeiro orçamento para começar.
+                                    </p>
+
+                                    <a
+                                        href="{{ route('orcamentos.create') }}"
+                                        class="btn btn-success"
+                                    >
+                                        + Novo Orçamento
+                                    </a>
 
                                 </td>
 

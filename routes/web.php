@@ -25,7 +25,7 @@ use App\Livewire\Orcamento\OrcamentoIndex;
 use App\Livewire\Orcamento\OrcamentoCreate;
 use App\Livewire\Orcamento\OrcamentoEdit;
 use App\Livewire\Orcamento\OrcamentoDelete;
-
+use App\Livewire\Orcamento\OrcamentoShow;
 
 // =============================
 // INÍCIO
@@ -191,3 +191,8 @@ Route::get(
     '/orcamentos/{id}/excluir',
     OrcamentoDelete::class
 )->name('orcamentos.delete');
+
+Route::get(
+    '/orcamentos/{id}',
+    OrcamentoShow::class
+)->name('orcamentos.show');
