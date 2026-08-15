@@ -1,6 +1,6 @@
 <div class="container py-4">
 
-    {{-- Cabeçalho --}}
+    {{-- CABEÇALHO --}}
     <div class="mb-4">
 
         <a
@@ -21,7 +21,6 @@
     </div>
 
 
-    {{-- Card --}}
     <div class="card border-0 shadow-sm">
 
         <div class="card-body p-4">
@@ -30,8 +29,7 @@
 
                 <div class="row g-3">
 
-
-                    {{-- Cliente --}}
+                    {{-- CLIENTE --}}
                     <div class="col-md-8">
 
                         <label class="form-label fw-semibold">
@@ -76,7 +74,7 @@
                     </div>
 
 
-                    {{-- Origem --}}
+                    {{-- ORIGEM --}}
                     <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
@@ -98,6 +96,10 @@
 
                             <option value="Instagram">
                                 Instagram
+                            </option>
+
+                            <option value="Site">
+                                Site
                             </option>
 
                             <option value="Telefone">
@@ -129,7 +131,7 @@
                     </div>
 
 
-                    {{-- Tipo do evento --}}
+                    {{-- EVENTO --}}
                     <div class="col-md-5">
 
                         <label class="form-label fw-semibold">
@@ -165,6 +167,10 @@
                                 Evento corporativo
                             </option>
 
+                            <option value="Chá revelação">
+                                Chá revelação
+                            </option>
+
                             <option value="Outro">
                                 Outro
                             </option>
@@ -174,7 +180,7 @@
                     </div>
 
 
-                    {{-- Data --}}
+                    {{-- DATA --}}
                     <div class="col-md-3">
 
                         <label class="form-label fw-semibold">
@@ -190,7 +196,7 @@
                     </div>
 
 
-                    {{-- Status --}}
+                    {{-- STATUS --}}
                     <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
@@ -243,7 +249,7 @@
                     </div>
 
 
-                    {{-- Último contato --}}
+                    {{-- ÚLTIMO CONTATO --}}
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
@@ -259,7 +265,7 @@
                     </div>
 
 
-                    {{-- Observações --}}
+                    {{-- OBSERVAÇÕES --}}
                     <div class="col-12">
 
                         <label class="form-label fw-semibold">
@@ -269,14 +275,14 @@
                         <textarea
                             wire:model.live="observacoes"
                             class="form-control"
-                            rows="4"
+                            rows="5"
                             placeholder="Informações sobre o atendimento..."
                         ></textarea>
 
                     </div>
 
 
-                    {{-- Motivo da perda --}}
+                    {{-- MOTIVO DA PERDA --}}
                     @if($status === 'perdido')
 
                         <div class="col-12">
@@ -299,7 +305,6 @@
                 </div>
 
 
-                {{-- Botões --}}
                 <div class="d-flex justify-content-end gap-2 mt-4">
 
                     <a

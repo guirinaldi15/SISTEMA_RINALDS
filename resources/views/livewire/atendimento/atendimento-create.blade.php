@@ -28,11 +28,10 @@
 
                 <div class="row g-3">
 
-
-                    {{-- Cliente --}}
+                    {{-- CLIENTE --}}
                     <div class="col-md-8">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Cliente *
                         </label>
 
@@ -63,7 +62,6 @@
 
                         </select>
 
-
                         @error('cliente_id')
 
                             <div class="invalid-feedback">
@@ -75,16 +73,16 @@
                     </div>
 
 
-                    {{-- Origem --}}
+                    {{-- ORIGEM --}}
                     <div class="col-md-4">
 
-                        <label class="form-label">
-                            Origem
+                        <label class="form-label fw-semibold">
+                            Origem *
                         </label>
 
                         <select
                             wire:model="origem"
-                            class="form-select"
+                            class="form-select @error('origem') is-invalid @enderror"
                         >
 
                             <option value="WhatsApp">
@@ -93,6 +91,10 @@
 
                             <option value="Instagram">
                                 Instagram
+                            </option>
+
+                            <option value="Site">
+                                Site
                             </option>
 
                             <option value="Telefone">
@@ -113,13 +115,21 @@
 
                         </select>
 
+                        @error('origem')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
                     </div>
 
 
-                    {{-- Evento --}}
+                    {{-- EVENTO --}}
                     <div class="col-md-6">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Tipo do Evento
                         </label>
 
@@ -152,6 +162,10 @@
                                 Evento corporativo
                             </option>
 
+                            <option value="Chá revelação">
+                                Chá revelação
+                            </option>
+
                             <option value="Outro">
                                 Outro
                             </option>
@@ -161,10 +175,10 @@
                     </div>
 
 
-                    {{-- Data --}}
+                    {{-- DATA --}}
                     <div class="col-md-3">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Data desejada
                         </label>
 
@@ -177,10 +191,10 @@
                     </div>
 
 
-                    {{-- Status --}}
+                    {{-- STATUS --}}
                     <div class="col-md-3">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Status
                         </label>
 
@@ -222,10 +236,10 @@
                     </div>
 
 
-                    {{-- Observações --}}
+                    {{-- OBSERVAÇÕES --}}
                     <div class="col-12">
 
-                        <label class="form-label">
+                        <label class="form-label fw-semibold">
                             Observações do atendimento
                         </label>
 
@@ -239,13 +253,12 @@
                     </div>
 
 
-                    {{-- Motivo da perda --}}
-
+                    {{-- MOTIVO DA PERDA --}}
                     @if($status === 'perdido')
 
                         <div class="col-12">
 
-                            <label class="form-label text-danger">
+                            <label class="form-label fw-semibold text-danger">
                                 Motivo da perda
                             </label>
 
@@ -275,8 +288,24 @@
                     <button
                         type="submit"
                         class="btn btn-success"
+                        wire:loading.attr="disabled"
+                        wire:target="salvar"
                     >
-                        Salvar Atendimento
+
+                        <span
+                            wire:loading.remove
+                            wire:target="salvar"
+                        >
+                            Salvar Atendimento
+                        </span>
+
+                        <span
+                            wire:loading
+                            wire:target="salvar"
+                        >
+                            Salvando...
+                        </span>
+
                     </button>
 
                 </div>

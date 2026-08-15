@@ -1,9 +1,6 @@
 <div class="container-fluid py-4 px-4">
 
-    {{-- ====================================================== --}}
     {{-- CABEÇALHO --}}
-    {{-- ====================================================== --}}
-
     <div
         class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
     >
@@ -31,10 +28,7 @@
     </div>
 
 
-    {{-- ====================================================== --}}
-    {{-- MENSAGEM DE SUCESSO --}}
-    {{-- ====================================================== --}}
-
+    {{-- SUCESSO --}}
     @if(session('success'))
 
         <div class="alert alert-success">
@@ -44,17 +38,13 @@
     @endif
 
 
-    {{-- ====================================================== --}}
     {{-- FILTROS --}}
-    {{-- ====================================================== --}}
-
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body">
 
             <div class="row g-3">
 
-                {{-- Pesquisa --}}
                 <div class="col-md-8">
 
                     <input
@@ -67,7 +57,6 @@
                 </div>
 
 
-                {{-- Status --}}
                 <div class="col-md-4">
 
                     <select
@@ -118,10 +107,7 @@
     </div>
 
 
-    {{-- ====================================================== --}}
     {{-- TABELA --}}
-    {{-- ====================================================== --}}
-
     <div class="card border-0 shadow-sm">
 
         <div class="card-body">
@@ -185,6 +171,15 @@
 
                                             <span class="badge bg-danger">
                                                 Instagram
+                                            </span>
+
+                                        @break
+
+
+                                        @case('Site')
+
+                                            <span class="badge bg-info text-dark">
+                                                🌐 Site
                                             </span>
 
                                         @break
@@ -348,10 +343,7 @@
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- AÇÕES --}}
-                                {{-- ====================================================== --}}
-
                                 <td class="text-end">
 
                                     @php
@@ -371,7 +363,6 @@
                                     <div
                                         class="d-flex justify-content-end gap-1 flex-wrap"
                                     >
-
 
                                         {{-- ORÇAMENTO --}}
                                         <a

@@ -36,10 +36,11 @@ use App\Livewire\Reserva\ReservaShow;
 // INÍCIO
 // =============================
 
-Route::get(
-    '/',
-    DashboardIndex::class
-)->name('dashboard');
+Route::get('/', function () {
+
+    return view('site.home');
+
+})->name('site.home');
 
 Route::get(
     '/dashboard',
