@@ -2,16 +2,19 @@
 
 namespace App\Livewire\Reserva;
 
-use Livewire\Component;
-use App\Models\Reserva;
-use App\Models\Cliente;
 use App\Models\Atendimento;
+use App\Models\Cliente;
+use App\Models\Espaco;
+use App\Models\Reserva;
+use Livewire\Component;
 
 class ReservaCreate extends Component
 {
     public $cliente_id;
 
     public $atendimento_id;
+
+    public $espaco_id;
 
     public $data_evento;
 
@@ -43,7 +46,9 @@ class ReservaCreate extends Component
         |
         */
 
-        if (request()->has('atendimento')) {
+        if (
+            request()->has('atendimento')
+        ) {
 
             $atendimento =
                 Atendimento::with('cliente')
@@ -62,13 +67,14 @@ class ReservaCreate extends Component
                 $atendimento->cliente_id;
 
 
-            if ($atendimento->data_evento) {
+            if (
+                $atendimento->data_evento
+            ) {
 
                 $this->data_evento =
                     $atendimento
                         ->data_evento
                         ->format('Y-m-d');
-
             }
 
 
@@ -76,14 +82,14 @@ class ReservaCreate extends Component
                 $atendimento->tipo_evento;
 
 
-            if ($atendimento->observacoes) {
+            if (
+                $atendimento->observacoes
+            ) {
 
                 $this->observacoes =
                     'Reserva criada a partir do atendimento. '
                     . $atendimento->observacoes;
-
             }
-
         }
     }
 
@@ -97,6 +103,9 @@ class ReservaCreate extends Component
 
             'atendimento_id' =>
                 'nullable|exists:atendimentos,id',
+
+            'espaco_id' =>
+                'required|exists:espacos,id',
 
             'data_evento' =>
                 'required|date',
@@ -121,7 +130,6 @@ class ReservaCreate extends Component
 
             'observacoes' =>
                 'nullable|max:2000',
-
         ];
     }
 
@@ -131,13 +139,69 @@ class ReservaCreate extends Component
         'cliente_id.required' =>
             'Selecione um cliente.',
 
+        'espaco_id.required' =>
+            'Selecione o espaço do evento.',
+
+        'espaco_id.exists' =>
+            'O espaço selecionado é inválido.',
+
         'data_evento.required' =>
             'Informe a data do evento.',
 
         'tipo_evento.required' =>
             'Informe o tipo do evento.',
-
     ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | ESPAÇO SELECIONADO
+    |--------------------------------------------------------------------------
+    |
+    | Ao selecionar o espaço, podemos preencher automaticamente o valor base.
+    |
+    */
+
+    public function updatedEspacoId()
+    {
+        if (
+            !$this->espaco_id
+        ) {
+
+            return;
+        }
+
+
+        $espaco =
+            Espaco::find(
+                $this->espaco_id
+            );
+
+
+        if (
+            !$espaco
+        ) {
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Preencher valor apenas se ainda estiver vazio
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            empty($this->valor_total)
+            &&
+            $espaco->valor_base
+        ) {
+
+            $this->valor_total =
+                $espaco->valor_base;
+        }
+    }
 
 
     public function salvar()
@@ -152,17 +216,21 @@ class ReservaCreate extends Component
         |--------------------------------------------------------------------------
         */
 
-        if ($this->atendimento_id) {
+        if (
+            $this->atendimento_id
+        ) {
 
             $jaPossuiReserva =
                 Reserva::where(
                     'atendimento_id',
                     $this->atendimento_id
                 )
-                ->exists();
+                    ->exists();
 
 
-            if ($jaPossuiReserva) {
+            if (
+                $jaPossuiReserva
+            ) {
 
                 $this->addError(
                     'data_evento',
@@ -171,46 +239,103 @@ class ReservaCreate extends Component
 
                 return;
             }
-
         }
 
 
         /*
         |--------------------------------------------------------------------------
-        | Bloqueio de data
+        | Validar capacidade do espaço
         |--------------------------------------------------------------------------
         */
 
-        $dataOcupada =
-            Reserva::where(
-                'data_evento',
-                $this->data_evento
-            )
-            ->whereIn(
-                'status',
-                [
-                    'pre_reserva',
-                    'confirmada'
-                ]
-            )
-            ->exists();
+        $espaco =
+            Espaco::find(
+                $this->espaco_id
+            );
 
 
         if (
-            $dataOcupada
+            $espaco
+            &&
+            $espaco->capacidade_maxima
+            &&
+            $this->quantidade_convidados
+            &&
+            $this->quantidade_convidados
+                > $espaco->capacidade_maxima
+        ) {
+
+            $this->addError(
+                'quantidade_convidados',
+                'A quantidade de convidados ultrapassa a capacidade máxima de '
+                . $espaco->capacidade_maxima
+                . ' pessoas do espaço '
+                . $espaco->nome
+                . '.'
+            );
+
+            return;
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Bloqueio do mesmo espaço na mesma data
+        |--------------------------------------------------------------------------
+        |
+        | Pré-reserva e reserva confirmada ocupam a data.
+        |
+        | Uma reserva cancelada ou realizada não bloqueia uma nova reserva.
+        |
+        */
+
+        $espacoOcupado =
+            Reserva::query()
+
+                ->where(
+                    'espaco_id',
+                    $this->espaco_id
+                )
+
+                ->whereDate(
+                    'data_evento',
+                    $this->data_evento
+                )
+
+                ->whereIn(
+                    'status',
+                    [
+                        'pre_reserva',
+                        'confirmada',
+                    ]
+                )
+
+                ->exists();
+
+
+        if (
+            $espacoOcupado
             &&
             in_array(
                 $this->status,
                 [
                     'pre_reserva',
-                    'confirmada'
+                    'confirmada',
                 ]
             )
         ) {
 
+            $nomeEspaco =
+                $espaco
+                    ? $espaco->nome
+                    : 'selecionado';
+
+
             $this->addError(
                 'data_evento',
-                'Esta data já possui uma reserva ou pré-reserva.'
+                'O espaço '
+                . $nomeEspaco
+                . ' já possui uma reserva ou pré-reserva nesta data.'
             );
 
             return;
@@ -223,8 +348,9 @@ class ReservaCreate extends Component
         |--------------------------------------------------------------------------
         */
 
-        $reserva =
-            Reserva::create($dados);
+        Reserva::create(
+            $dados
+        );
 
 
         /*
@@ -233,7 +359,9 @@ class ReservaCreate extends Component
         |--------------------------------------------------------------------------
         */
 
-        if ($this->atendimento_id) {
+        if (
+            $this->atendimento_id
+        ) {
 
             $atendimento =
                 Atendimento::find(
@@ -241,15 +369,18 @@ class ReservaCreate extends Component
                 );
 
 
-            if ($atendimento) {
+            if (
+                $atendimento
+            ) {
 
                 $atendimento->update([
-                    'status' => 'fechado',
-                    'ultimo_contato' => now(),
+                    'status' =>
+                        'fechado',
+
+                    'ultimo_contato' =>
+                        now(),
                 ]);
-
             }
-
         }
 
 
@@ -260,20 +391,48 @@ class ReservaCreate extends Component
 
 
         return redirect()
-            ->route('reservas.index');
+            ->route(
+                'reservas.index'
+            );
     }
 
 
     public function render()
     {
+        /*
+        |--------------------------------------------------------------------------
+        | CLIENTES
+        |--------------------------------------------------------------------------
+        */
+
         $clientes =
-            Cliente::orderBy('nome')
+            Cliente::query()
+                ->orderBy('nome')
+                ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | ESPAÇOS ATIVOS
+        |--------------------------------------------------------------------------
+        */
+
+        $espacos =
+            Espaco::query()
+                ->where(
+                    'ativo',
+                    true
+                )
+                ->orderBy('nome')
                 ->get();
 
 
         return view(
             'livewire.reserva.reserva-create',
-            compact('clientes')
+            compact(
+                'clientes',
+                'espacos'
+            )
         );
     }
 }
