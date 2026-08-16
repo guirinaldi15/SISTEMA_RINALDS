@@ -6,33 +6,23 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>
         Rinald's Gestão
     </title>
 
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-    >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
-    <link
-        rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-    >
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 
     @livewireStyles
 
 
     <style>
-
         body {
 
             min-height: 100vh;
@@ -78,13 +68,10 @@
                 24px;
 
             border-bottom:
-                1px solid
-                rgba(
+                1px solid rgba(255,
                     255,
                     255,
-                    255,
-                    .1
-                );
+                    .1);
 
         }
 
@@ -104,12 +91,10 @@
                 3px 10px;
 
             color:
-                rgba(
+                rgba(255,
                     255,
                     255,
-                    255,
-                    .82
-                );
+                    .82);
 
             text-decoration:
                 none;
@@ -126,12 +111,10 @@
         .sidebar-link:hover {
 
             background:
-                rgba(
+                rgba(255,
                     255,
                     255,
-                    255,
-                    .1
-                );
+                    .1);
 
             color:
                 white;
@@ -173,8 +156,7 @@
                 white;
 
             border-bottom:
-                1px solid
-                #e9ecef;
+                1px solid #e9ecef;
 
             display:
                 flex;
@@ -231,10 +213,7 @@
         }
 
 
-        @media(
-            max-width:
-            991px
-        ) {
+        @media(max-width: 991px) {
 
             .sidebar {
 
@@ -260,7 +239,6 @@
             }
 
         }
-
     </style>
 
 </head>
@@ -298,150 +276,88 @@
 
 
             {{-- DASHBOARD --}}
-            <a
-                href="{{ route('dashboard.index') }}"
+            <a href="{{ route('dashboard.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('dashboard.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('dashboard.*') ? 'active' : '' }}">
                 🏠 Dashboard
             </a>
 
 
             {{-- ATENDIMENTOS --}}
-            <a
-                href="{{ route('atendimentos.index') }}"
+            <a href="{{ route('atendimentos.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('atendimentos.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('atendimentos.*') ? 'active' : '' }}">
                 💬 Atendimentos
             </a>
 
 
             {{-- CLIENTES --}}
-            <a
-                href="{{ route('clientes.index') }}"
+            <a href="{{ route('clientes.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('clientes.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('clientes.*') ? 'active' : '' }}">
                 👥 Clientes
             </a>
 
 
             {{-- AGENDA --}}
-            <a
-                href="{{ route('agenda.index') }}"
+            <a href="{{ route('agenda.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('agenda.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('agenda.*') ? 'active' : '' }}">
                 📅 Agenda
+            </a>
+
+            <a href="{{ route('espacos.index') }}"
+                class="sidebar-link
+        {{ request()->routeIs('espacos.*') ? 'active' : '' }}">
+                🏡 Espaços
             </a>
 
 
             {{-- RESERVAS --}}
-            <a
-                href="{{ route('reservas.index') }}"
+            <a href="{{ route('reservas.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('reservas.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('reservas.*') ? 'active' : '' }}">
                 🎉 Reservas
             </a>
 
 
             {{-- ORÇAMENTOS --}}
-            <a
-                href="{{ route('orcamentos.index') }}"
+            <a href="{{ route('orcamentos.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('orcamentos.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('orcamentos.*') ? 'active' : '' }}">
                 💰 Orçamentos
             </a>
 
 
             {{-- FINANCEIRO --}}
-            @if(auth()->user()->isAdmin())
-
-                <a
-                    href="{{ route('pagamentos.index') }}"
+            @if (auth()->user()->isAdmin())
+                <a href="{{ route('pagamentos.index') }}"
                     class="sidebar-link
-                        {{
-                            request()
-                                ->routeIs('pagamentos.*')
-                                ? 'active'
-                                : ''
-                        }}"
-                >
+                        {{ request()->routeIs('pagamentos.*') ? 'active' : '' }}">
                     💳 Financeiro
                 </a>
-
             @endif
 
 
             {{-- LEMBRETES --}}
-            <a
-                href="{{ route('lembretes.index') }}"
+            <a href="{{ route('lembretes.index') }}"
                 class="sidebar-link
-                    {{
-                        request()
-                            ->routeIs('lembretes.*')
-                            ? 'active'
-                            : ''
-                    }}"
-            >
+                    {{ request()->routeIs('lembretes.*') ? 'active' : '' }}">
                 🔔 Lembretes
             </a>
 
 
             {{-- USUÁRIOS --}}
-            @if(auth()->user()->isAdmin())
-
-                <a
-                    href="{{ route('usuarios.index') }}"
+            @if (auth()->user()->isAdmin())
+                <a href="{{ route('usuarios.index') }}"
                     class="sidebar-link
-                        {{
-                            request()
-                                ->routeIs('usuarios.*')
-                                ? 'active'
-                                : ''
-                        }}"
-                >
+                        {{ request()->routeIs('usuarios.*') ? 'active' : '' }}">
                     👤 Usuários
                 </a>
-
             @endif
 
 
-            <hr
-                class="mx-3 my-3"
+            <hr class="mx-3 my-3"
                 style="
                     border-color:
                     rgba(
@@ -450,36 +366,25 @@
                         255,
                         .15
                     );
-                "
-            >
+                ">
 
 
             {{-- SITE --}}
-            <a
-                href="{{ route('site.home') }}"
-                target="_blank"
-                class="sidebar-link"
-            >
+            <a href="{{ route('site.home') }}" target="_blank" class="sidebar-link">
                 🌐 Ver Site
             </a>
 
 
             {{-- SAIR --}}
-            <form
-                method="POST"
-                action="{{ route('logout') }}"
-            >
+            <form method="POST" action="{{ route('logout') }}">
 
                 @csrf
 
-                <button
-                    type="submit"
-                    class="sidebar-link border-0 text-start"
+                <button type="submit" class="sidebar-link border-0 text-start"
                     style="
                         background:
                         transparent;
-                    "
-                >
+                    ">
                     🚪 Sair
                 </button>
 
@@ -511,57 +416,33 @@
             </div>
 
 
-            <div
-                class="d-flex align-items-center gap-3"
-            >
+            <div class="d-flex align-items-center gap-3">
 
 
-                <a
-                    href="{{ route('lembretes.index') }}"
-                    class="text-decoration-none text-dark"
-                >
+                <a href="{{ route('lembretes.index') }}" class="text-decoration-none text-dark">
                     🔔
                 </a>
 
 
-                <div
-                    class="d-flex align-items-center gap-2"
-                >
+                <div class="d-flex align-items-center gap-2">
 
                     <div class="user-avatar">
 
-                        {{
-                            strtoupper(
-                                substr(
-                                    auth()->user()->name,
-                                    0,
-                                    1
-                                )
-                            )
-                        }}
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
 
                     </div>
 
 
-                    <div
-                        class="d-none d-md-block"
-                    >
+                    <div class="d-none d-md-block">
 
-                        <div
-                            class="fw-semibold"
-                        >
+                        <div class="fw-semibold">
                             {{ auth()->user()->name }}
                         </div>
 
 
                         <small class="text-muted">
 
-                            {{
-                                auth()->user()->perfil
-                                === 'administrador'
-                                ? 'Administrador'
-                                : 'Atendente'
-                            }}
+                            {{ auth()->user()->perfil === 'administrador' ? 'Administrador' : 'Atendente' }}
 
                         </small>
 
@@ -570,17 +451,11 @@
                 </div>
 
 
-                <form
-                    method="POST"
-                    action="{{ route('logout') }}"
-                >
+                <form method="POST" action="{{ route('logout') }}">
 
                     @csrf
 
-                    <button
-                        type="submit"
-                        class="btn btn-sm btn-outline-danger"
-                    >
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
                         Sair
                     </button>
 
@@ -600,9 +475,7 @@
     </div>
 
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
     @livewireScripts

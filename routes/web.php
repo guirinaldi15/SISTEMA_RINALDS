@@ -98,6 +98,12 @@ use App\Livewire\Usuario\UsuarioCreate;
 use App\Livewire\Usuario\UsuarioEdit;
 use App\Livewire\Usuario\UsuarioDelete;
 
+use App\Livewire\Espaco\EspacoIndex;
+use App\Livewire\Espaco\EspacoCreate;
+use App\Livewire\Espaco\EspacoEdit;
+use App\Livewire\Espaco\EspacoDelete;
+use App\Livewire\Espaco\EspacoShow;
+
 
 
 /*
@@ -172,6 +178,46 @@ Route::post(
 
 Route::middleware('auth')
     ->group(function () {
+
+    /*
+|--------------------------------------------------------------------------
+| ESPAÇOS
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/espacos',
+    EspacoIndex::class
+)
+    ->name('espacos.index');
+
+
+Route::get(
+    '/espacos/novo',
+    EspacoCreate::class
+)
+    ->name('espacos.create');
+
+
+Route::get(
+    '/espacos/{id}/editar',
+    EspacoEdit::class
+)
+    ->name('espacos.edit');
+
+
+Route::get(
+    '/espacos/{id}/excluir',
+    EspacoDelete::class
+)
+    ->name('espacos.delete');
+
+
+Route::get(
+    '/espacos/{id}',
+    EspacoShow::class
+)
+    ->name('espacos.show');
 
 
         /*
