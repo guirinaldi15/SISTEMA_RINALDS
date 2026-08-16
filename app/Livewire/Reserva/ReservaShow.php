@@ -2,22 +2,26 @@
 
 namespace App\Livewire\Reserva;
 
-use Livewire\Component;
 use App\Models\Reserva;
+use Livewire\Component;
 
 class ReservaShow extends Component
 {
     public Reserva $reserva;
 
-    public function mount($id)
+
+    public function mount(int $id): void
     {
-        $this->reserva = Reserva::with([
-            'cliente',
-            'atendimento',
-            'pagamentos'
-        ])
-        ->findOrFail($id);
+        $this->reserva =
+            Reserva::with([
+                'cliente',
+                'atendimento',
+                'espaco',
+                'pagamentos',
+            ])
+                ->findOrFail($id);
     }
+
 
     public function render()
     {
@@ -30,8 +34,13 @@ class ReservaShow extends Component
         $totalPago =
             $this->reserva
                 ->pagamentos
-                ->where('status', 'pago')
-                ->sum('valor');
+                ->where(
+                    'status',
+                    'pago'
+                )
+                ->sum(
+                    'valor'
+                );
 
 
         /*
@@ -43,8 +52,12 @@ class ReservaShow extends Component
         $saldoRestante =
             max(
                 0,
-                (float) $this->reserva->valor_total
-                - (float) $totalPago
+                (float)
+                $this->reserva
+                    ->valor_total
+                -
+                (float)
+                $totalPago
             );
 
 
@@ -56,24 +69,35 @@ class ReservaShow extends Component
 
         $percentualPago = 0;
 
+
         if (
-            (float) $this->reserva->valor_total > 0
+            (float)
+            $this->reserva
+                ->valor_total
+            > 0
         ) {
 
             $percentualPago =
                 (
-                    (float) $totalPago
+                    (float)
+                    $totalPago
                     /
-                    (float) $this->reserva->valor_total
+                    (float)
+                    $this->reserva
+                        ->valor_total
                 )
-                * 100;
-
+                *
+                100;
         }
+
 
         $percentualPago =
             min(
                 100,
-                round($percentualPago, 2)
+                round(
+                    $percentualPago,
+                    2
+                )
             );
 
 
@@ -86,18 +110,29 @@ class ReservaShow extends Component
         $pagamentosAtrasados =
             $this->reserva
                 ->pagamentos
-                ->filter(function ($pagamento) {
-
-                    return
-                        $pagamento->status === 'pendente'
-                        &&
-                        $pagamento->data_vencimento
-                        &&
+                ->filter(
+                    function (
                         $pagamento
-                            ->data_vencimento
-                            ->isPast();
+                    ) {
 
-                });
+                        return
+                            $pagamento
+                                ->status
+                            ===
+                            'pendente'
+
+                            &&
+
+                            $pagamento
+                                ->data_vencimento
+
+                            &&
+
+                            $pagamento
+                                ->data_vencimento
+                                ->isPast();
+                    }
+                );
 
 
         /*
@@ -109,7 +144,9 @@ class ReservaShow extends Component
         $pagamentos =
             $this->reserva
                 ->pagamentos
-                ->sortBy('data_vencimento');
+                ->sortBy(
+                    'data_vencimento'
+                );
 
 
         /*
@@ -119,7 +156,10 @@ class ReservaShow extends Component
         */
 
         if (
-            (float) $this->reserva->valor_total <= 0
+            (float)
+            $this->reserva
+                ->valor_total
+            <= 0
         ) {
 
             $situacaoFinanceira =
@@ -133,7 +173,9 @@ class ReservaShow extends Component
                 'quitada';
 
         } elseif (
-            $pagamentosAtrasados->count() > 0
+            $pagamentosAtrasados
+                ->count()
+            > 0
         ) {
 
             $situacaoFinanceira =
@@ -150,7 +192,6 @@ class ReservaShow extends Component
 
             $situacaoFinanceira =
                 'pendente';
-
         }
 
 

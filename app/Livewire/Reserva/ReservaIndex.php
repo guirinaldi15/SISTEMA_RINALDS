@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Reserva;
 
-use Livewire\Component;
 use App\Models\Reserva;
+use Livewire\Component;
 
 class ReservaIndex extends Component
 {
@@ -17,63 +17,84 @@ class ReservaIndex extends Component
         $reservas =
             Reserva::query()
 
-            ->with([
-                'cliente',
-                'pagamentos'
-            ])
+                ->with([
+                    'cliente',
+                    'espaco',
+                    'pagamentos',
+                ])
 
-            ->when(
-                $this->search,
-                function ($query) {
+                ->when(
+                    $this->search,
+                    function ($query) {
 
-                    $query->whereHas(
-                        'cliente',
-                        function ($q) {
+                        $query->where(
+                            function ($q) {
 
-                            $q->where(
-                                'nome',
-                                'like',
-                                '%' .
-                                $this->search .
-                                '%'
-                            )
+                                $q->whereHas(
+                                    'cliente',
+                                    function ($clienteQuery) {
 
-                            ->orWhere(
-                                'telefone',
-                                'like',
-                                '%' .
-                                $this->search .
-                                '%'
-                            );
+                                        $clienteQuery
+                                            ->where(
+                                                'nome',
+                                                'like',
+                                                '%' . $this->search . '%'
+                                            )
 
-                        }
-                    );
+                                            ->orWhere(
+                                                'telefone',
+                                                'like',
+                                                '%' . $this->search . '%'
+                                            );
+                                    }
+                                )
 
-                }
-            )
+                                ->orWhereHas(
+                                    'espaco',
+                                    function ($espacoQuery) {
 
-            ->when(
-                $this->status,
-                function ($query) {
+                                        $espacoQuery
+                                            ->where(
+                                                'nome',
+                                                'like',
+                                                '%' . $this->search . '%'
+                                            );
+                                    }
+                                )
 
-                    $query->where(
-                        'status',
-                        $this->status
-                    );
+                                ->orWhere(
+                                    'tipo_evento',
+                                    'like',
+                                    '%' . $this->search . '%'
+                                );
+                            }
+                        );
+                    }
+                )
 
-                }
-            )
+                ->when(
+                    $this->status,
+                    function ($query) {
 
-            ->orderBy(
-                'data_evento'
-            )
+                        $query->where(
+                            'status',
+                            $this->status
+                        );
+                    }
+                )
 
-            ->get();
+                ->orderBy(
+                    'data_evento'
+                )
+
+                ->get();
 
 
         return view(
             'livewire.reserva.reserva-index',
-            compact('reservas')
+            compact(
+                'reservas'
+            )
         );
     }
 }

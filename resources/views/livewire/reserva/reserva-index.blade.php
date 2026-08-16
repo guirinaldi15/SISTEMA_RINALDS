@@ -1,12 +1,11 @@
 <div class="container-fluid py-4 px-4">
 
-    {{-- ====================================================== --}}
-    {{-- CABEÇALHO --}}
-    {{-- ====================================================== --}}
-
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div
+        class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
+    >
 
         <div>
+
             <h2 class="fw-bold mb-1">
                 Reservas
             </h2>
@@ -14,7 +13,9 @@
             <p class="text-muted mb-0">
                 Gerencie as reservas e eventos da Chácara Rinald's.
             </p>
+
         </div>
+
 
         <a
             href="{{ route('reservas.create') }}"
@@ -26,13 +27,11 @@
     </div>
 
 
-    {{-- ====================================================== --}}
-    {{-- MENSAGENS --}}
-    {{-- ====================================================== --}}
-
     @if(session('success'))
 
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div
+            class="alert alert-success alert-dismissible fade show"
+        >
 
             {{ session('success') }}
 
@@ -49,54 +48,45 @@
 
     @if(session('error'))
 
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="alert alert-danger">
 
             {{ session('error') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
 
         </div>
 
     @endif
 
 
-    {{-- ====================================================== --}}
     {{-- FILTROS --}}
-    {{-- ====================================================== --}}
-
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-body">
 
             <div class="row g-3">
 
-                {{-- PESQUISA --}}
                 <div class="col-md-8">
 
                     <label class="form-label fw-semibold">
                         Pesquisar
                     </label>
 
+
                     <input
                         type="text"
                         wire:model.live="search"
                         class="form-control"
-                        placeholder="Pesquisar pelo nome ou telefone do cliente..."
+                        placeholder="Cliente, telefone, espaço ou evento..."
                     >
 
                 </div>
 
 
-                {{-- STATUS --}}
                 <div class="col-md-4">
 
                     <label class="form-label fw-semibold">
                         Status
                     </label>
+
 
                     <select
                         wire:model.live="status"
@@ -104,7 +94,7 @@
                     >
 
                         <option value="">
-                            Todos os status
+                            Todos
                         </option>
 
                         <option value="pre_reserva">
@@ -134,10 +124,6 @@
     </div>
 
 
-    {{-- ====================================================== --}}
-    {{-- TABELA DE RESERVAS --}}
-    {{-- ====================================================== --}}
-
     <div class="card border-0 shadow-sm">
 
         <div class="card-body">
@@ -152,6 +138,10 @@
 
                             <th>
                                 Cliente
+                            </th>
+
+                            <th>
+                                Espaço
                             </th>
 
                             <th>
@@ -189,77 +179,101 @@
 
                     <tbody>
 
-                        @forelse($reservas as $reserva)
+                        @forelse(
+                            $reservas
+                            as $reserva
+                        )
 
                             @php
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | FINANCEIRO
-                                |--------------------------------------------------------------------------
-                                */
-
-                                $totalPago = $reserva
-                                    ->pagamentos
-                                    ->where('status', 'pago')
-                                    ->sum('valor');
-
-
-                                $valorTotal = (float) $reserva->valor_total;
+                                $totalPago =
+                                    $reserva
+                                        ->pagamentos
+                                        ->where(
+                                            'status',
+                                            'pago'
+                                        )
+                                        ->sum(
+                                            'valor'
+                                        );
 
 
-                                $saldoRestante = max(
-                                    0,
-                                    $valorTotal - (float) $totalPago
-                                );
+                                $valorTotal =
+                                    (float)
+                                    $reserva
+                                        ->valor_total;
 
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | PAGAMENTO ATRASADO
-                                |--------------------------------------------------------------------------
-                                */
-
-                                $possuiAtraso = $reserva
-                                    ->pagamentos
-                                    ->contains(function ($pagamento) {
-
-                                        return
-                                            $pagamento->status === 'pendente'
-                                            &&
-                                            $pagamento->data_vencimento
-                                            &&
-                                            $pagamento->data_vencimento->isPast();
-
-                                    });
+                                $saldoRestante =
+                                    max(
+                                        0,
+                                        $valorTotal
+                                        -
+                                        (float)
+                                        $totalPago
+                                    );
 
 
-                                /*
-                                |--------------------------------------------------------------------------
-                                | SITUAÇÃO FINANCEIRA
-                                |--------------------------------------------------------------------------
-                                */
+                                $possuiAtraso =
+                                    $reserva
+                                        ->pagamentos
+                                        ->contains(
+                                            function (
+                                                $pagamento
+                                            ) {
 
-                                if ($valorTotal <= 0) {
+                                                return
+                                                    $pagamento
+                                                        ->status
+                                                    ===
+                                                    'pendente'
 
-                                    $situacaoFinanceira = 'sem_valor';
+                                                    &&
 
-                                } elseif ($saldoRestante <= 0) {
+                                                    $pagamento
+                                                        ->data_vencimento
 
-                                    $situacaoFinanceira = 'quitada';
+                                                    &&
 
-                                } elseif ($possuiAtraso) {
+                                                    $pagamento
+                                                        ->data_vencimento
+                                                        ->isPast();
+                                            }
+                                        );
 
-                                    $situacaoFinanceira = 'atrasada';
 
-                                } elseif ($totalPago > 0) {
+                                if (
+                                    $valorTotal <= 0
+                                ) {
 
-                                    $situacaoFinanceira = 'parcial';
+                                    $situacaoFinanceira =
+                                        'sem_valor';
+
+                                } elseif (
+                                    $saldoRestante <= 0
+                                ) {
+
+                                    $situacaoFinanceira =
+                                        'quitada';
+
+                                } elseif (
+                                    $possuiAtraso
+                                ) {
+
+                                    $situacaoFinanceira =
+                                        'atrasada';
+
+                                } elseif (
+                                    $totalPago > 0
+                                ) {
+
+                                    $situacaoFinanceira =
+                                        'parcial';
 
                                 } else {
 
-                                    $situacaoFinanceira = 'pendente';
-
+                                    $situacaoFinanceira =
+                                        'pendente';
                                 }
 
                             @endphp
@@ -267,43 +281,100 @@
 
                             <tr>
 
-                                {{-- ====================================================== --}}
                                 {{-- CLIENTE --}}
-                                {{-- ====================================================== --}}
-
                                 <td>
 
                                     <div class="fw-semibold">
 
-                                        {{ $reserva->cliente->nome ?? 'Cliente não encontrado' }}
+                                        {{
+                                            $reserva
+                                                ->cliente
+                                                ->nome
+                                            ??
+                                            'Cliente não encontrado'
+                                        }}
 
                                     </div>
 
 
-                                    @if($reserva->cliente)
+                                    <small class="text-muted">
 
-                                        <small class="text-muted">
+                                        {{
+                                            $reserva
+                                                ->cliente
+                                                ->telefone
+                                            ??
+                                            'Sem telefone'
+                                        }}
 
-                                            {{ $reserva->cliente->telefone ?? 'Sem telefone' }}
+                                    </small>
 
-                                        </small>
+                                </td>
+
+
+                                {{-- ESPAÇO --}}
+                                <td>
+
+                                    @if($reserva->espaco)
+
+                                        <div class="fw-semibold">
+
+                                            {{
+                                                $reserva
+                                                    ->espaco
+                                                    ->nome
+                                            }}
+
+                                        </div>
+
+
+                                        @if(
+                                            $reserva
+                                                ->espaco
+                                                ->capacidade_maxima
+                                        )
+
+                                            <small class="text-muted">
+
+                                                Até
+
+                                                {{
+                                                    $reserva
+                                                        ->espaco
+                                                        ->capacidade_maxima
+                                                }}
+
+                                                pessoas
+
+                                            </small>
+
+                                        @endif
+
+                                    @else
+
+                                        <span class="text-muted">
+
+                                            Não informado
+
+                                        </span>
 
                                     @endif
 
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- DATA --}}
-                                {{-- ====================================================== --}}
-
                                 <td>
 
                                     <div class="fw-semibold">
 
-                                        {{ $reserva
-                                            ->data_evento
-                                            ->format('d/m/Y') }}
+                                        {{
+                                            $reserva
+                                                ->data_evento
+                                                ->format(
+                                                    'd/m/Y'
+                                                )
+                                        }}
 
                                     </div>
 
@@ -316,21 +387,29 @@
 
                                         <small class="text-muted">
 
-                                            @if($reserva->horario_inicio)
+                                            @if(
+                                                $reserva
+                                                    ->horario_inicio
+                                            )
 
-                                                {{ substr(
-                                                    $reserva->horario_inicio,
-                                                    0,
-                                                    5
-                                                ) }}
+                                                {{
+                                                    substr(
+                                                        $reserva
+                                                            ->horario_inicio,
+                                                        0,
+                                                        5
+                                                    )
+                                                }}
 
                                             @endif
 
 
                                             @if(
-                                                $reserva->horario_inicio
+                                                $reserva
+                                                    ->horario_inicio
                                                 &&
-                                                $reserva->horario_fim
+                                                $reserva
+                                                    ->horario_fim
                                             )
 
                                                 às
@@ -338,13 +417,19 @@
                                             @endif
 
 
-                                            @if($reserva->horario_fim)
+                                            @if(
+                                                $reserva
+                                                    ->horario_fim
+                                            )
 
-                                                {{ substr(
-                                                    $reserva->horario_fim,
-                                                    0,
-                                                    5
-                                                ) }}
+                                                {{
+                                                    substr(
+                                                        $reserva
+                                                            ->horario_fim,
+                                                        0,
+                                                        5
+                                                    )
+                                                }}
 
                                             @endif
 
@@ -355,86 +440,53 @@
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- EVENTO --}}
-                                {{-- ====================================================== --}}
-
                                 <td>
 
-                                    <div class="fw-semibold">
-
-                                        {{ $reserva->tipo_evento }}
-
-                                    </div>
+                                    {{
+                                        $reserva
+                                            ->tipo_evento
+                                    }}
 
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- CONVIDADOS --}}
-                                {{-- ====================================================== --}}
-
                                 <td>
 
-                                    @if($reserva->quantidade_convidados)
-
-                                        {{ $reserva->quantidade_convidados }}
-
-                                        <small class="text-muted">
-                                            pessoas
-                                        </small>
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            -
-                                        </span>
-
-                                    @endif
+                                    {{
+                                        $reserva
+                                            ->quantidade_convidados
+                                        ??
+                                        '-'
+                                    }}
 
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- VALOR --}}
-                                {{-- ====================================================== --}}
-
                                 <td>
 
-                                    @if($reserva->valor_total)
+                                    @if(
+                                        $reserva
+                                            ->valor_total
+                                    )
 
                                         <div class="fw-semibold">
 
                                             R$
 
-                                            {{ number_format(
-                                                $reserva->valor_total,
-                                                2,
-                                                ',',
-                                                '.'
-                                            ) }}
-
-                                        </div>
-
-
-                                        @if($totalPago > 0)
-
-                                            <small class="text-success">
-
-                                                R$
-
-                                                {{ number_format(
-                                                    $totalPago,
+                                            {{
+                                                number_format(
+                                                    $reserva
+                                                        ->valor_total,
                                                     2,
                                                     ',',
                                                     '.'
-                                                ) }}
+                                                )
+                                            }}
 
-                                                pago
-
-                                            </small>
-
-                                        @endif
+                                        </div>
 
                                     @else
 
@@ -447,125 +499,80 @@
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- FINANCEIRO --}}
-                                {{-- ====================================================== --}}
-
                                 <td>
 
-                                    @switch($situacaoFinanceira)
+                                    @switch(
+                                        $situacaoFinanceira
+                                    )
 
-
-                                        {{-- QUITADA --}}
                                         @case('quitada')
 
-                                            <span class="badge bg-success">
-
+                                            <span
+                                                class="badge bg-success"
+                                            >
                                                 ✓ Quitada
-
                                             </span>
 
                                         @break
 
 
-                                        {{-- ATRASADA --}}
                                         @case('atrasada')
 
-                                            <span class="badge bg-danger">
-
+                                            <span
+                                                class="badge bg-danger"
+                                            >
                                                 Atrasada
-
                                             </span>
-
-                                            <div class="mt-1">
-
-                                                <small class="text-danger">
-
-                                                    Saldo:
-
-                                                    R$
-
-                                                    {{ number_format(
-                                                        $saldoRestante,
-                                                        2,
-                                                        ',',
-                                                        '.'
-                                                    ) }}
-
-                                                </small>
-
-                                            </div>
 
                                         @break
 
 
-                                        {{-- PARCIAL --}}
                                         @case('parcial')
 
-                                            <span class="badge bg-warning text-dark">
-
+                                            <span
+                                                class="badge bg-warning text-dark"
+                                            >
                                                 Parcial
-
                                             </span>
 
-                                            <div class="mt-1">
+                                            <small
+                                                class="d-block text-muted"
+                                            >
 
-                                                <small class="text-muted">
+                                                Falta R$
 
-                                                    Falta:
-
-                                                    R$
-
-                                                    {{ number_format(
+                                                {{
+                                                    number_format(
                                                         $saldoRestante,
                                                         2,
                                                         ',',
                                                         '.'
-                                                    ) }}
+                                                    )
+                                                }}
 
-                                                </small>
-
-                                            </div>
+                                            </small>
 
                                         @break
 
 
-                                        {{-- PENDENTE --}}
                                         @case('pendente')
 
-                                            <span class="badge bg-secondary">
-
+                                            <span
+                                                class="badge bg-secondary"
+                                            >
                                                 Pendente
-
                                             </span>
-
-                                            <div class="mt-1">
-
-                                                <small class="text-muted">
-
-                                                    R$
-
-                                                    {{ number_format(
-                                                        $saldoRestante,
-                                                        2,
-                                                        ',',
-                                                        '.'
-                                                    ) }}
-
-                                                </small>
-
-                                            </div>
 
                                         @break
 
 
-                                        {{-- SEM VALOR --}}
                                         @default
 
-                                            <span class="badge bg-light text-dark">
-
+                                            <span
+                                                class="badge bg-light text-dark"
+                                            >
                                                 Sem valor
-
                                             </span>
 
                                     @endswitch
@@ -573,21 +580,20 @@
                                 </td>
 
 
-                                {{-- ====================================================== --}}
-                                {{-- STATUS DA RESERVA --}}
-                                {{-- ====================================================== --}}
-
+                                {{-- STATUS --}}
                                 <td>
 
-                                    @switch($reserva->status)
-
+                                    @switch(
+                                        $reserva
+                                            ->status
+                                    )
 
                                         @case('pre_reserva')
 
-                                            <span class="badge bg-warning text-dark">
-
+                                            <span
+                                                class="badge bg-warning text-dark"
+                                            >
                                                 Pré-reserva
-
                                             </span>
 
                                         @break
@@ -595,10 +601,10 @@
 
                                         @case('confirmada')
 
-                                            <span class="badge bg-success">
-
+                                            <span
+                                                class="badge bg-success"
+                                            >
                                                 Confirmada
-
                                             </span>
 
                                         @break
@@ -606,10 +612,10 @@
 
                                         @case('realizada')
 
-                                            <span class="badge bg-secondary">
-
+                                            <span
+                                                class="badge bg-secondary"
+                                            >
                                                 Realizada
-
                                             </span>
 
                                         @break
@@ -617,95 +623,86 @@
 
                                         @case('cancelada')
 
-                                            <span class="badge bg-danger">
-
+                                            <span
+                                                class="badge bg-danger"
+                                            >
                                                 Cancelada
-
                                             </span>
 
                                         @break
-
-
-                                        @default
-
-                                            <span class="badge bg-light text-dark">
-
-                                                {{ ucfirst($reserva->status) }}
-
-                                            </span>
 
                                     @endswitch
 
                                 </td>
 
 
-                                {{-- ====================================================== --}}
                                 {{-- AÇÕES --}}
-                                {{-- ====================================================== --}}
-
                                 <td class="text-end">
 
-                                    <div class="d-flex justify-content-end gap-1 flex-wrap">
+                                    <div
+                                        class="d-flex justify-content-end gap-1 flex-wrap"
+                                    >
 
-
-                                        {{-- VISUALIZAR --}}
                                         <a
-                                            href="{{ route(
-                                                'reservas.show',
-                                                $reserva->id
-                                            ) }}"
+                                            href="{{
+                                                route(
+                                                    'reservas.show',
+                                                    $reserva->id
+                                                )
+                                            }}"
                                             class="btn btn-sm btn-outline-secondary"
-                                            title="Visualizar reserva"
                                         >
                                             Visualizar
                                         </a>
 
 
-                                        {{-- PAGAMENTO --}}
                                         @if(
-                                            $reserva->status
-                                            !== 'cancelada'
+                                            $reserva
+                                                ->status
+                                            !==
+                                            'cancelada'
                                         )
 
                                             <a
-                                                href="{{ route(
-                                                    'pagamentos.create',
-                                                    [
-                                                        'reserva'
-                                                        =>
-                                                        $reserva->id
-                                                    ]
-                                                ) }}"
+                                                href="{{
+                                                    route(
+                                                        'pagamentos.create',
+                                                        [
+                                                            'reserva'
+                                                            =>
+                                                            $reserva->id
+                                                        ]
+                                                    )
+                                                }}"
                                                 class="btn btn-sm btn-outline-success"
-                                                title="Adicionar pagamento"
                                             >
-                                                💳 Pagamento
+                                                💳
                                             </a>
 
                                         @endif
 
 
-                                        {{-- EDITAR --}}
                                         <a
-                                            href="{{ route(
-                                                'reservas.edit',
-                                                $reserva->id
-                                            ) }}"
+                                            href="{{
+                                                route(
+                                                    'reservas.edit',
+                                                    $reserva->id
+                                                )
+                                            }}"
                                             class="btn btn-sm btn-outline-primary"
-                                            title="Editar reserva"
                                         >
                                             Editar
                                         </a>
 
 
-                                        {{-- EXCLUIR --}}
                                         <a
-                                            href="{{ route(
-                                                'reservas.delete',
-                                                $reserva->id
-                                            ) }}"
+                                            href="{{
+                                                route(
+                                                    'reservas.delete',
+                                                    $reserva->id
+                                                )
+                                            }}"
                                             class="btn btn-sm btn-outline-danger"
-                                            title="Excluir reserva"
                                         >
                                             Excluir
                                         </a>
@@ -719,14 +716,10 @@
 
                         @empty
 
-                            {{-- ====================================================== --}}
-                            {{-- SEM RESERVAS --}}
-                            {{-- ====================================================== --}}
-
                             <tr>
 
                                 <td
-                                    colspan="8"
+                                    colspan="9"
                                     class="text-center py-5"
                                 >
 
@@ -735,37 +728,14 @@
                                     </div>
 
 
-                                    <h5 class="fw-semibold">
+                                    <h5>
                                         Nenhuma reserva encontrada
                                     </h5>
 
 
-                                    @if(
-                                        !empty($search)
-                                        ||
-                                        !empty($status)
-                                    )
-
-                                        <p class="text-muted mb-3">
-
-                                            Nenhuma reserva corresponde aos filtros selecionados.
-
-                                        </p>
-
-                                    @else
-
-                                        <p class="text-muted mb-3">
-
-                                            Cadastre a primeira reserva da Chácara Rinald's.
-
-                                        </p>
-
-                                    @endif
-
-
                                     <a
                                         href="{{ route('reservas.create') }}"
-                                        class="btn btn-success"
+                                        class="btn btn-success mt-2"
                                     >
                                         + Nova Reserva
                                     </a>
@@ -787,23 +757,26 @@
     </div>
 
 
-    {{-- ====================================================== --}}
-    {{-- RODAPÉ --}}
-    {{-- ====================================================== --}}
-
-    @if($reservas->count() > 0)
+    @if(
+        $reservas->count() > 0
+    )
 
         <div
-            class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3"
+            class="d-flex justify-content-between align-items-center mt-3"
         >
 
             <small class="text-muted">
 
                 {{ $reservas->count() }}
 
-                {{ $reservas->count() === 1
-                    ? 'reserva encontrada'
-                    : 'reservas encontradas'
+                {{
+                    $reservas->count()
+                    ===
+                    1
+                    ?
+                    'reserva encontrada'
+                    :
+                    'reservas encontradas'
                 }}
 
             </small>
