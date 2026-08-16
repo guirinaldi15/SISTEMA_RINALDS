@@ -64,6 +64,7 @@
                                 Selecione um atendimento
                             </option>
 
+
                             @foreach(
                                 $atendimentos
                                 as $atendimento
@@ -73,33 +74,26 @@
                                     value="{{ $atendimento->id }}"
                                 >
 
-                                    {{ $atendimento
-                                        ->cliente
-                                        ->nome }}
+                                    {{
+                                        $atendimento
+                                            ->cliente
+                                            ->nome
+                                    }}
 
                                     -
 
-                                    {{ $atendimento
-                                        ->tipo_evento
-                                        ?? 'Evento não informado' }}
-
-                                    @if(
-                                        $atendimento->data_evento
-                                    )
-
-                                        -
-
-                                        {{ $atendimento
-                                            ->data_evento
-                                            ->format('d/m/Y') }}
-
-                                    @endif
+                                    {{
+                                        $atendimento
+                                            ->tipo_evento
+                                        ?? 'Evento não informado'
+                                    }}
 
                                 </option>
 
                             @endforeach
 
                         </select>
+
 
                         @error('atendimento_id')
 
@@ -128,7 +122,67 @@
                     </div>
 
 
-                    <div class="col-md-6">
+                    {{-- ESPAÇO --}}
+                    <div class="col-md-8">
+
+                        <label class="form-label fw-semibold">
+                            Espaço *
+                        </label>
+
+                        <select
+                            wire:model.live="espaco_id"
+                            class="form-select
+                            @error('espaco_id')
+                                is-invalid
+                            @enderror"
+                        >
+
+                            <option value="">
+                                Selecione um espaço
+                            </option>
+
+
+                            @foreach($espacos as $espaco)
+
+                                <option
+                                    value="{{ $espaco->id }}"
+                                >
+
+                                    {{ $espaco->nome }}
+
+                                    @if(
+                                        $espaco->capacidade_maxima
+                                    )
+
+                                        -
+                                        até
+                                        {{
+                                            $espaco
+                                                ->capacidade_maxima
+                                        }}
+                                        pessoas
+
+                                    @endif
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+
+                        @error('espaco_id')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
                             Validade
@@ -155,6 +209,65 @@
                             class="form-control"
                             min="1"
                         >
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        @if($espaco_id)
+
+                            @php
+
+                                $espacoSelecionado =
+                                    $espacos->firstWhere(
+                                        'id',
+                                        $espaco_id
+                                    );
+
+                            @endphp
+
+
+                            @if($espacoSelecionado)
+
+                                <div class="alert alert-light border mb-0">
+
+                                    <strong>
+                                        {{ $espacoSelecionado->nome }}
+                                    </strong>
+
+                                    <div class="small text-muted">
+
+                                        Capacidade:
+                                        {{
+                                            $espacoSelecionado
+                                                ->capacidade_maxima
+                                            ?? 'Não informada'
+                                        }}
+
+                                        |
+
+                                        Mesas:
+                                        {{
+                                            $espacoSelecionado
+                                                ->quantidade_mesas
+                                        }}
+
+                                        |
+
+                                        Cadeiras:
+                                        {{
+                                            $espacoSelecionado
+                                                ->quantidade_cadeiras
+                                        }}
+
+                                    </div>
+
+                                </div>
+
+                            @endif
+
+                        @endif
 
                     </div>
 
@@ -284,12 +397,14 @@
 
                             <input
                                 type="text"
-                                value="{{ number_format(
-                                    (float) $valor_total,
-                                    2,
-                                    ',',
-                                    '.'
-                                ) }}"
+                                value="{{
+                                    number_format(
+                                        (float) $valor_total,
+                                        2,
+                                        ',',
+                                        '.'
+                                    )
+                                }}"
                                 class="form-control fw-bold"
                                 readonly
                             >
@@ -309,7 +424,7 @@
                             wire:model="observacoes"
                             class="form-control"
                             rows="4"
-                            placeholder="Condições, serviços inclusos, observações comerciais..."
+                            placeholder="Condições, serviços inclusos e observações..."
                         ></textarea>
 
                     </div>
@@ -327,6 +442,7 @@
                     >
                         Cancelar
                     </a>
+
 
                     <button
                         type="submit"

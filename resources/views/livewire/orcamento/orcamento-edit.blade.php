@@ -14,10 +14,27 @@
         </h2>
 
         <p class="text-muted">
-            Atualize a proposta comercial.
+            Crie uma proposta comercial para o cliente.
         </p>
 
     </div>
+
+
+    @if($atendimento_id)
+
+        <div class="alert alert-success">
+
+            <strong>
+                ✓ Orçamento originado de um atendimento
+            </strong>
+
+            <div class="small">
+                O atendimento já foi selecionado automaticamente.
+            </div>
+
+        </div>
+
+    @endif
 
 
     <div class="card border-0 shadow-sm">
@@ -32,13 +49,21 @@
                     <div class="col-md-8">
 
                         <label class="form-label fw-semibold">
-                            Atendimento
+                            Atendimento *
                         </label>
 
                         <select
                             wire:model="atendimento_id"
-                            class="form-select"
+                            class="form-select
+                            @error('atendimento_id')
+                                is-invalid
+                            @enderror"
                         >
+
+                            <option value="">
+                                Selecione um atendimento
+                            </option>
+
 
                             @foreach(
                                 $atendimentos
@@ -49,15 +74,19 @@
                                     value="{{ $atendimento->id }}"
                                 >
 
-                                    {{ $atendimento
-                                        ->cliente
-                                        ->nome }}
+                                    {{
+                                        $atendimento
+                                            ->cliente
+                                            ->nome
+                                    }}
 
                                     -
 
-                                    {{ $atendimento
-                                        ->tipo_evento
-                                        ?? 'Evento não informado' }}
+                                    {{
+                                        $atendimento
+                                            ->tipo_evento
+                                        ?? 'Evento não informado'
+                                    }}
 
                                 </option>
 
@@ -65,13 +94,22 @@
 
                         </select>
 
+
+                        @error('atendimento_id')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
                     </div>
 
 
                     <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
-                            Número
+                            Número *
                         </label>
 
                         <input
@@ -84,7 +122,67 @@
                     </div>
 
 
-                    <div class="col-md-6">
+                    {{-- ESPAÇO --}}
+                    <div class="col-md-8">
+
+                        <label class="form-label fw-semibold">
+                            Espaço *
+                        </label>
+
+                        <select
+                            wire:model.live="espaco_id"
+                            class="form-select
+                            @error('espaco_id')
+                                is-invalid
+                            @enderror"
+                        >
+
+                            <option value="">
+                                Selecione um espaço
+                            </option>
+
+
+                            @foreach($espacos as $espaco)
+
+                                <option
+                                    value="{{ $espaco->id }}"
+                                >
+
+                                    {{ $espaco->nome }}
+
+                                    @if(
+                                        $espaco->capacidade_maxima
+                                    )
+
+                                        -
+                                        até
+                                        {{
+                                            $espaco
+                                                ->capacidade_maxima
+                                        }}
+                                        pessoas
+
+                                    @endif
+
+                                </option>
+
+                            @endforeach
+
+                        </select>
+
+
+                        @error('espaco_id')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
                             Validade
@@ -102,14 +200,74 @@
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
-                            Convidados
+                            Quantidade de convidados
                         </label>
 
                         <input
                             type="number"
                             wire:model="quantidade_convidados"
                             class="form-control"
+                            min="1"
                         >
+
+                    </div>
+
+
+                    <div class="col-md-6">
+
+                        @if($espaco_id)
+
+                            @php
+
+                                $espacoSelecionado =
+                                    $espacos->firstWhere(
+                                        'id',
+                                        $espaco_id
+                                    );
+
+                            @endphp
+
+
+                            @if($espacoSelecionado)
+
+                                <div class="alert alert-light border mb-0">
+
+                                    <strong>
+                                        {{ $espacoSelecionado->nome }}
+                                    </strong>
+
+                                    <div class="small text-muted">
+
+                                        Capacidade:
+                                        {{
+                                            $espacoSelecionado
+                                                ->capacidade_maxima
+                                            ?? 'Não informada'
+                                        }}
+
+                                        |
+
+                                        Mesas:
+                                        {{
+                                            $espacoSelecionado
+                                                ->quantidade_mesas
+                                        }}
+
+                                        |
+
+                                        Cadeiras:
+                                        {{
+                                            $espacoSelecionado
+                                                ->quantidade_cadeiras
+                                        }}
+
+                                    </div>
+
+                                </div>
+
+                            @endif
+
+                        @endif
 
                     </div>
 
@@ -117,7 +275,7 @@
                     <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
-                            Locação
+                            Valor da Locação
                         </label>
 
                         <div class="input-group">
@@ -129,6 +287,7 @@
                             <input
                                 type="number"
                                 step="0.01"
+                                min="0"
                                 wire:model.live="valor_locacao"
                                 class="form-control"
                             >
@@ -153,6 +312,7 @@
                             <input
                                 type="number"
                                 step="0.01"
+                                min="0"
                                 wire:model.live="valor_adicionais"
                                 class="form-control"
                             >
@@ -177,6 +337,7 @@
                             <input
                                 type="number"
                                 step="0.01"
+                                min="0"
                                 wire:model.live="desconto"
                                 class="form-control"
                             >
@@ -225,20 +386,30 @@
                     <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
-                            Total
+                            Valor Total
                         </label>
 
-                        <input
-                            type="text"
-                            value="R$ {{ number_format(
-                                (float) $valor_total,
-                                2,
-                                ',',
-                                '.'
-                            ) }}"
-                            class="form-control fw-bold"
-                            readonly
-                        >
+                        <div class="input-group">
+
+                            <span class="input-group-text">
+                                R$
+                            </span>
+
+                            <input
+                                type="text"
+                                value="{{
+                                    number_format(
+                                        (float) $valor_total,
+                                        2,
+                                        ',',
+                                        '.'
+                                    )
+                                }}"
+                                class="form-control fw-bold"
+                                readonly
+                            >
+
+                        </div>
 
                     </div>
 
@@ -253,6 +424,7 @@
                             wire:model="observacoes"
                             class="form-control"
                             rows="4"
+                            placeholder="Condições, serviços inclusos e observações..."
                         ></textarea>
 
                     </div>
@@ -271,11 +443,28 @@
                         Cancelar
                     </a>
 
+
                     <button
                         type="submit"
                         class="btn btn-success"
+                        wire:loading.attr="disabled"
+                        wire:target="salvar"
                     >
-                        Salvar Alterações
+
+                        <span
+                            wire:loading.remove
+                            wire:target="salvar"
+                        >
+                            Editar Orçamento
+                        </span>
+
+                        <span
+                            wire:loading
+                            wire:target="salvar"
+                        >
+                            Salvando...
+                        </span>
+
                     </button>
 
                 </div>

@@ -2,13 +2,16 @@
 
 namespace App\Livewire\Orcamento;
 
-use Livewire\Component;
 use App\Models\Atendimento;
+use App\Models\Espaco;
 use App\Models\Orcamento;
+use Livewire\Component;
 
 class OrcamentoCreate extends Component
 {
     public $atendimento_id;
+
+    public $espaco_id;
 
     public $numero;
 
@@ -31,12 +34,6 @@ class OrcamentoCreate extends Component
 
     public function mount()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Número automático
-        |--------------------------------------------------------------------------
-        */
-
         $ultimoId =
             Orcamento::max('id') ?? 0;
 
@@ -49,27 +46,11 @@ class OrcamentoCreate extends Component
                 STR_PAD_LEFT
             );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Validade padrão
-        |--------------------------------------------------------------------------
-        */
-
         $this->validade =
             now()
                 ->addDays(7)
                 ->format('Y-m-d');
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Atendimento pela URL
-        |--------------------------------------------------------------------------
-        |
-        | /orcamentos/novo?atendimento=3
-        |
-        */
 
         if (
             request()->has('atendimento')
@@ -94,6 +75,9 @@ class OrcamentoCreate extends Component
 
             'atendimento_id' =>
                 'required|exists:atendimentos,id',
+
+            'espaco_id' =>
+                'required|exists:espacos,id',
 
             'numero' =>
                 'required|max:20|unique:orcamentos,numero',
@@ -120,6 +104,33 @@ class OrcamentoCreate extends Component
                 'nullable|max:3000',
 
         ];
+    }
+
+
+    public function updatedEspacoId()
+    {
+        if (!$this->espaco_id) {
+
+            $this->valor_locacao = 0;
+
+            $this->calcularTotal();
+
+            return;
+        }
+
+        $espaco =
+            Espaco::find(
+                $this->espaco_id
+            );
+
+        if (!$espaco) {
+            return;
+        }
+
+        $this->valor_locacao =
+            $espaco->valor_base ?? 0;
+
+        $this->calcularTotal();
     }
 
 
@@ -152,14 +163,18 @@ class OrcamentoCreate extends Component
         $desconto =
             (float) ($this->desconto ?: 0);
 
+
         $total =
             $locacao
             + $adicionais
             - $desconto;
 
+
         if ($total < 0) {
+
             $total = 0;
         }
+
 
         $this->valor_total =
             number_format(
@@ -188,12 +203,6 @@ class OrcamentoCreate extends Component
             );
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | Atualizar atendimento
-        |--------------------------------------------------------------------------
-        */
-
         if (
             $orcamento->status === 'enviado'
         ) {
@@ -201,13 +210,14 @@ class OrcamentoCreate extends Component
             $orcamento
                 ->atendimento
                 ->update([
+
                     'status' =>
                         'orcamento_enviado',
 
                     'ultimo_contato' =>
                         now(),
-                ]);
 
+                ]);
         }
 
 
@@ -218,13 +228,14 @@ class OrcamentoCreate extends Component
             $orcamento
                 ->atendimento
                 ->update([
+
                     'status' =>
                         'negociacao',
 
                     'ultimo_contato' =>
                         now(),
-                ]);
 
+                ]);
         }
 
 
@@ -235,7 +246,9 @@ class OrcamentoCreate extends Component
 
 
         return redirect()
-            ->route('orcamentos.index');
+            ->route(
+                'orcamentos.index'
+            );
     }
 
 
@@ -256,9 +269,22 @@ class OrcamentoCreate extends Component
                 ->get();
 
 
+        $espacos =
+            Espaco::query()
+                ->where(
+                    'ativo',
+                    true
+                )
+                ->orderBy('nome')
+                ->get();
+
+
         return view(
             'livewire.orcamento.orcamento-create',
-            compact('atendimentos')
+            compact(
+                'atendimentos',
+                'espacos'
+            )
         );
     }
 }

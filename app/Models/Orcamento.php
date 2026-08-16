@@ -8,6 +8,7 @@ class Orcamento extends Model
 {
     protected $fillable = [
         'atendimento_id',
+        'espaco_id',
         'numero',
         'validade',
         'quantidade_convidados',
@@ -32,6 +33,13 @@ class Orcamento extends Model
     {
         return $this->belongsTo(
             Atendimento::class
+        );
+    }
+
+    public function espaco()
+    {
+        return $this->belongsTo(
+            Espaco::class
         );
     }
 }

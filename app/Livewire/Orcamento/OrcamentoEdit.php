@@ -2,63 +2,99 @@
 
 namespace App\Livewire\Orcamento;
 
-use Livewire\Component;
 use App\Models\Atendimento;
+use App\Models\Espaco;
 use App\Models\Orcamento;
 use Illuminate\Validation\Rule;
+use Livewire\Component;
 
 class OrcamentoEdit extends Component
 {
     public Orcamento $orcamento;
 
     public $atendimento_id;
+
+    public $espaco_id;
+
     public $numero;
+
     public $validade;
+
     public $quantidade_convidados;
+
     public $valor_locacao;
+
     public $valor_adicionais;
+
     public $desconto;
+
     public $valor_total;
+
     public $status;
+
     public $observacoes;
 
 
-    public function mount($id)
+    public function mount(int $id): void
     {
         $this->orcamento =
             Orcamento::findOrFail($id);
 
+
         $this->atendimento_id =
-            $this->orcamento->atendimento_id;
+            $this->orcamento
+                ->atendimento_id;
+
+
+        $this->espaco_id =
+            $this->orcamento
+                ->espaco_id;
+
 
         $this->numero =
-            $this->orcamento->numero;
+            $this->orcamento
+                ->numero;
+
 
         $this->validade =
-            $this->orcamento->validade
+            $this->orcamento
+                ->validade
                 ?->format('Y-m-d');
+
 
         $this->quantidade_convidados =
             $this->orcamento
                 ->quantidade_convidados;
 
+
         $this->valor_locacao =
-            $this->orcamento->valor_locacao;
+            $this->orcamento
+                ->valor_locacao;
+
 
         $this->valor_adicionais =
-            $this->orcamento->valor_adicionais;
+            $this->orcamento
+                ->valor_adicionais;
+
 
         $this->desconto =
-            $this->orcamento->desconto;
+            $this->orcamento
+                ->desconto;
+
 
         $this->valor_total =
-            $this->orcamento->valor_total;
+            $this->orcamento
+                ->valor_total;
+
 
         $this->status =
-            $this->orcamento->status;
+            $this->orcamento
+                ->status;
+
 
         $this->observacoes =
-            $this->orcamento->observacoes;
+            $this->orcamento
+                ->observacoes;
     }
 
 
@@ -69,16 +105,21 @@ class OrcamentoEdit extends Component
             'atendimento_id' =>
                 'required|exists:atendimentos,id',
 
+            'espaco_id' =>
+                'required|exists:espacos,id',
+
             'numero' => [
+
                 'required',
                 'max:20',
 
                 Rule::unique(
                     'orcamentos',
                     'numero'
-                )->ignore(
-                    $this->orcamento->id
-                ),
+                )
+                    ->ignore(
+                        $this->orcamento->id
+                    ),
             ],
 
             'validade' =>
@@ -106,15 +147,35 @@ class OrcamentoEdit extends Component
     }
 
 
+    public function updatedEspacoId()
+    {
+        $espaco =
+            Espaco::find(
+                $this->espaco_id
+            );
+
+        if (!$espaco) {
+            return;
+        }
+
+        $this->valor_locacao =
+            $espaco->valor_base ?? 0;
+
+        $this->calcularTotal();
+    }
+
+
     public function updatedValorLocacao()
     {
         $this->calcularTotal();
     }
 
+
     public function updatedValorAdicionais()
     {
         $this->calcularTotal();
     }
+
 
     public function updatedDesconto()
     {
@@ -129,9 +190,12 @@ class OrcamentoEdit extends Component
             + (float) ($this->valor_adicionais ?: 0)
             - (float) ($this->desconto ?: 0);
 
+
         if ($total < 0) {
+
             $total = 0;
         }
+
 
         $this->valor_total =
             number_format(
@@ -150,11 +214,15 @@ class OrcamentoEdit extends Component
         $dados =
             $this->validate();
 
+
         $dados['valor_total'] =
             $this->valor_total;
 
+
         $this->orcamento
-            ->update($dados);
+            ->update(
+                $dados
+            );
 
 
         if (
@@ -164,13 +232,14 @@ class OrcamentoEdit extends Component
             $this->orcamento
                 ->atendimento
                 ->update([
+
                     'status' =>
                         'orcamento_enviado',
 
                     'ultimo_contato' =>
                         now(),
-                ]);
 
+                ]);
         }
 
 
@@ -181,13 +250,14 @@ class OrcamentoEdit extends Component
             $this->orcamento
                 ->atendimento
                 ->update([
+
                     'status' =>
                         'negociacao',
 
                     'ultimo_contato' =>
                         now(),
-                ]);
 
+                ]);
         }
 
 
@@ -198,7 +268,9 @@ class OrcamentoEdit extends Component
 
 
         return redirect()
-            ->route('orcamentos.index');
+            ->route(
+                'orcamentos.index'
+            );
     }
 
 
@@ -206,12 +278,28 @@ class OrcamentoEdit extends Component
     {
         $atendimentos =
             Atendimento::with('cliente')
-                ->orderByDesc('updated_at')
+                ->orderByDesc(
+                    'updated_at'
+                )
                 ->get();
+
+
+        $espacos =
+            Espaco::query()
+                ->where(
+                    'ativo',
+                    true
+                )
+                ->orderBy('nome')
+                ->get();
+
 
         return view(
             'livewire.orcamento.orcamento-edit',
-            compact('atendimentos')
+            compact(
+                'atendimentos',
+                'espacos'
+            )
         );
     }
 }
