@@ -6,13 +6,6 @@ use Illuminate\Support\Facades\Route;
 
 
 // ============================================================
-// SITE
-// ============================================================
-
-use App\Livewire\Site\SolicitarOrcamento;
-
-
-// ============================================================
 // AUTENTICAÇÃO
 // ============================================================
 
@@ -96,22 +89,31 @@ use App\Livewire\Pagamento\PagamentoEdit;
 use App\Livewire\Pagamento\PagamentoDelete;
 
 
+// ============================================================
+// USUÁRIOS
+// ============================================================
+
+use App\Livewire\Usuario\UsuarioIndex;
+use App\Livewire\Usuario\UsuarioCreate;
+use App\Livewire\Usuario\UsuarioEdit;
+use App\Livewire\Usuario\UsuarioDelete;
+
+
 
 /*
 |--------------------------------------------------------------------------
 | SITE PÚBLICO
 |--------------------------------------------------------------------------
-|
-| Qualquer pessoa pode acessar.
-|
 */
 
-Route::get('/', function () {
+Route::get(
+    '/',
+    function () {
 
-    return view('site.home');
-
-})
-->name('site.home');
+        return view('site.home');
+    }
+)
+    ->name('site.home');
 
 
 
@@ -119,9 +121,6 @@ Route::get('/', function () {
 |--------------------------------------------------------------------------
 | LOGIN
 |--------------------------------------------------------------------------
-|
-| Somente usuários que ainda não estão autenticados.
-|
 */
 
 Route::middleware('guest')
@@ -131,8 +130,7 @@ Route::middleware('guest')
             '/login',
             Login::class
         )
-        ->name('login');
-
+            ->name('login');
     });
 
 
@@ -157,14 +155,12 @@ Route::post(
             ->session()
             ->regenerateToken();
 
-
         return redirect()
             ->route('login');
-
     }
 )
-->middleware('auth')
-->name('logout');
+    ->middleware('auth')
+    ->name('logout');
 
 
 
@@ -172,9 +168,6 @@ Route::post(
 |--------------------------------------------------------------------------
 | ÁREA ADMINISTRATIVA
 |--------------------------------------------------------------------------
-|
-| Tudo dentro deste grupo exige login.
-|
 */
 
 Route::middleware('auth')
@@ -191,7 +184,7 @@ Route::middleware('auth')
             '/dashboard',
             DashboardIndex::class
         )
-        ->name('dashboard.index');
+            ->name('dashboard.index');
 
 
 
@@ -205,35 +198,35 @@ Route::middleware('auth')
             '/clientes',
             ClienteIndex::class
         )
-        ->name('clientes.index');
+            ->name('clientes.index');
 
 
         Route::get(
             '/clientes/novo',
             ClienteCreate::class
         )
-        ->name('clientes.create');
+            ->name('clientes.create');
 
 
         Route::get(
             '/clientes/{id}/editar',
             ClienteEdit::class
         )
-        ->name('clientes.edit');
+            ->name('clientes.edit');
 
 
         Route::get(
             '/clientes/{id}/excluir',
             ClienteDelete::class
         )
-        ->name('clientes.delete');
+            ->name('clientes.delete');
 
 
         Route::get(
             '/clientes/{id}',
             ClienteShow::class
         )
-        ->name('clientes.show');
+            ->name('clientes.show');
 
 
 
@@ -247,28 +240,28 @@ Route::middleware('auth')
             '/atendimentos',
             AtendimentoIndex::class
         )
-        ->name('atendimentos.index');
+            ->name('atendimentos.index');
 
 
         Route::get(
             '/atendimentos/novo',
             AtendimentoCreate::class
         )
-        ->name('atendimentos.create');
+            ->name('atendimentos.create');
 
 
         Route::get(
             '/atendimentos/{id}/editar',
             AtendimentoEdit::class
         )
-        ->name('atendimentos.edit');
+            ->name('atendimentos.edit');
 
 
         Route::get(
             '/atendimentos/{id}/excluir',
             AtendimentoDelete::class
         )
-        ->name('atendimentos.delete');
+            ->name('atendimentos.delete');
 
 
 
@@ -282,28 +275,28 @@ Route::middleware('auth')
             '/lembretes',
             LembreteIndex::class
         )
-        ->name('lembretes.index');
+            ->name('lembretes.index');
 
 
         Route::get(
             '/lembretes/novo',
             LembreteCreate::class
         )
-        ->name('lembretes.create');
+            ->name('lembretes.create');
 
 
         Route::get(
             '/lembretes/{id}/editar',
             LembreteEdit::class
         )
-        ->name('lembretes.edit');
+            ->name('lembretes.edit');
 
 
         Route::get(
             '/lembretes/{id}/excluir',
             LembreteDelete::class
         )
-        ->name('lembretes.delete');
+            ->name('lembretes.delete');
 
 
 
@@ -317,7 +310,7 @@ Route::middleware('auth')
             '/agenda',
             AgendaIndex::class
         )
-        ->name('agenda.index');
+            ->name('agenda.index');
 
 
 
@@ -331,35 +324,35 @@ Route::middleware('auth')
             '/reservas',
             ReservaIndex::class
         )
-        ->name('reservas.index');
+            ->name('reservas.index');
 
 
         Route::get(
             '/reservas/nova',
             ReservaCreate::class
         )
-        ->name('reservas.create');
+            ->name('reservas.create');
 
 
         Route::get(
             '/reservas/{id}/editar',
             ReservaEdit::class
         )
-        ->name('reservas.edit');
+            ->name('reservas.edit');
 
 
         Route::get(
             '/reservas/{id}/excluir',
             ReservaDelete::class
         )
-        ->name('reservas.delete');
+            ->name('reservas.delete');
 
 
         Route::get(
             '/reservas/{id}',
             ReservaShow::class
         )
-        ->name('reservas.show');
+            ->name('reservas.show');
 
 
 
@@ -373,69 +366,114 @@ Route::middleware('auth')
             '/orcamentos',
             OrcamentoIndex::class
         )
-        ->name('orcamentos.index');
+            ->name('orcamentos.index');
 
 
         Route::get(
             '/orcamentos/novo',
             OrcamentoCreate::class
         )
-        ->name('orcamentos.create');
+            ->name('orcamentos.create');
 
 
         Route::get(
             '/orcamentos/{id}/editar',
             OrcamentoEdit::class
         )
-        ->name('orcamentos.edit');
+            ->name('orcamentos.edit');
 
 
         Route::get(
             '/orcamentos/{id}/excluir',
             OrcamentoDelete::class
         )
-        ->name('orcamentos.delete');
+            ->name('orcamentos.delete');
 
 
         Route::get(
             '/orcamentos/{id}',
             OrcamentoShow::class
         )
-        ->name('orcamentos.show');
+            ->name('orcamentos.show');
 
 
 
         /*
         |--------------------------------------------------------------------------
-        | FINANCEIRO
+        | SOMENTE ADMINISTRADOR
         |--------------------------------------------------------------------------
         */
 
-        Route::get(
-            '/financeiro',
-            PagamentoIndex::class
-        )
-        ->name('pagamentos.index');
+        Route::middleware('admin')
+            ->group(function () {
 
 
-        Route::get(
-            '/financeiro/novo',
-            PagamentoCreate::class
-        )
-        ->name('pagamentos.create');
+                /*
+                |--------------------------------------------------------------------------
+                | FINANCEIRO
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/financeiro',
+                    PagamentoIndex::class
+                )
+                    ->name('pagamentos.index');
 
 
-        Route::get(
-            '/financeiro/{id}/editar',
-            PagamentoEdit::class
-        )
-        ->name('pagamentos.edit');
+                Route::get(
+                    '/financeiro/novo',
+                    PagamentoCreate::class
+                )
+                    ->name('pagamentos.create');
 
 
-        Route::get(
-            '/financeiro/{id}/excluir',
-            PagamentoDelete::class
-        )
-        ->name('pagamentos.delete');
+                Route::get(
+                    '/financeiro/{id}/editar',
+                    PagamentoEdit::class
+                )
+                    ->name('pagamentos.edit');
 
+
+                Route::get(
+                    '/financeiro/{id}/excluir',
+                    PagamentoDelete::class
+                )
+                    ->name('pagamentos.delete');
+
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | USUÁRIOS
+                |--------------------------------------------------------------------------
+                */
+
+                Route::get(
+                    '/usuarios',
+                    UsuarioIndex::class
+                )
+                    ->name('usuarios.index');
+
+
+                Route::get(
+                    '/usuarios/novo',
+                    UsuarioCreate::class
+                )
+                    ->name('usuarios.create');
+
+
+                Route::get(
+                    '/usuarios/{id}/editar',
+                    UsuarioEdit::class
+                )
+                    ->name('usuarios.edit');
+
+
+                Route::get(
+                    '/usuarios/{id}/excluir',
+                    UsuarioDelete::class
+                )
+                    ->name('usuarios.delete');
+            });
     });
