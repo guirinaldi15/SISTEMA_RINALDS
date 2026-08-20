@@ -4,32 +4,60 @@
     {{-- BOTÕES SUPERIORES --}}
     {{-- ====================================================== --}}
 
-    <div
-        class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 no-print"
-    >
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4 no-print">
 
         <div>
 
-            <a
-                href="{{ route('orcamentos.index') }}"
-                class="text-decoration-none"
-            >
+            <a href="{{ route('orcamentos.index') }}" class="text-decoration-none">
                 ← Voltar para Orçamentos
             </a>
 
         </div>
 
+        {{-- ====================================================== --}}
+        {{-- CRIAR / VISUALIZAR RESERVA --}}
+        {{-- ====================================================== --}}
 
+        @if(
+        $orcamento->status === 'aceito'
+        )
+
+        @if($possuiReserva)
+
+        <a href="{{
+                route(
+                    'reservas.show',
+                    $reservaId
+                )
+            }}" class="btn btn-success">
+            ✅ Ver Reserva
+        </a>
+
+        @else
+
+        <a href="{{
+                route(
+                    'reservas.create',
+                    [
+                        'orcamento'
+                        =>
+                        $orcamento->id
+                    ]
+                )
+            }}" class="btn btn-success">
+            📅 Criar Reserva
+        </a>
+
+        @endif
+
+        @endif
         <div class="d-flex gap-2 flex-wrap">
 
             {{-- Editar --}}
-            <a
-                href="{{ route(
+            <a href="{{ route(
                     'orcamentos.edit',
                     $orcamento->id
-                ) }}"
-                class="btn btn-outline-primary"
-            >
+                ) }}" class="btn btn-outline-primary">
                 ✏️ Editar
             </a>
 
@@ -37,87 +65,80 @@
             {{-- WhatsApp --}}
             @php
 
-                $telefone = preg_replace(
-                    '/\D/',
-                    '',
-                    $orcamento
-                        ->atendimento
-                        ->cliente
-                        ->telefone
-                );
+            $telefone = preg_replace(
+            '/\D/',
+            '',
+            $orcamento
+            ->atendimento
+            ->cliente
+            ->telefone
+            );
 
 
-                $cliente =
-                    $orcamento
-                        ->atendimento
-                        ->cliente
-                        ->nome;
+            $cliente =
+            $orcamento
+            ->atendimento
+            ->cliente
+            ->nome;
 
 
-                $evento =
-                    $orcamento
-                        ->atendimento
-                        ->tipo_evento
-                        ?? 'evento';
+            $evento =
+            $orcamento
+            ->atendimento
+            ->tipo_evento
+            ?? 'evento';
 
 
-                $dataEvento =
-                    $orcamento
-                        ->atendimento
-                        ->data_evento
-                        ?->format('d/m/Y');
+            $dataEvento =
+            $orcamento
+            ->atendimento
+            ->data_evento
+            ?->format('d/m/Y');
 
 
-                $validade =
-                    $orcamento
-                        ->validade
-                        ?->format('d/m/Y');
+            $validade =
+            $orcamento
+            ->validade
+            ?->format('d/m/Y');
 
 
-                $valor =
-                    number_format(
-                        $orcamento->valor_total,
-                        2,
-                        ',',
-                        '.'
-                    );
+            $valor =
+            number_format(
+            $orcamento->valor_total,
+            2,
+            ',',
+            '.'
+            );
 
 
-                $mensagem =
-                    "Olá {$cliente}! Tudo bem?\n\n"
-                    . "Preparamos o orçamento da Chácara Rinald's para seu {$evento}.\n\n"
-                    . "📄 Orçamento: {$orcamento->numero}\n"
-                    . ($dataEvento
-                        ? "📅 Data do evento: {$dataEvento}\n"
-                        : '')
-                    . "💰 Valor total: R$ {$valor}\n"
-                    . ($validade
-                        ? "⏳ Validade da proposta: {$validade}\n"
-                        : '')
-                    . "\nQualquer dúvida, estamos à disposição!";
+            $mensagem =
+            "Olá {$cliente}! Tudo bem?\n\n"
+            . "Preparamos o orçamento da Chácara Rinald's para seu {$evento}.\n\n"
+            . "📄 Orçamento: {$orcamento->numero}\n"
+            . ($dataEvento
+            ? "📅 Data do evento: {$dataEvento}\n"
+            : '')
+            . "💰 Valor total: R$ {$valor}\n"
+            . ($validade
+            ? "⏳ Validade da proposta: {$validade}\n"
+            : '')
+            . "\nQualquer dúvida, estamos à disposição!";
 
 
-                $mensagemWhatsapp =
-                    urlencode($mensagem);
+            $mensagemWhatsapp =
+            urlencode($mensagem);
 
             @endphp
 
 
-            <a
-                href="https://wa.me/55{{ $telefone }}?text={{ $mensagemWhatsapp }}"
-                target="_blank"
-                class="btn btn-success"
-            >
+            <a href="https://wa.me/55{{ $telefone }}?text={{ $mensagemWhatsapp }}" target="_blank"
+                class="btn btn-success">
                 WhatsApp
             </a>
 
 
             {{-- Imprimir --}}
-            <button
-                type="button"
-                onclick="window.print()"
-                class="btn btn-dark"
-            >
+            <button type="button" onclick="window.print()" class="btn btn-dark">
                 🖨️ Imprimir / PDF
             </button>
 
@@ -130,10 +151,7 @@
     {{-- ORÇAMENTO --}}
     {{-- ====================================================== --}}
 
-    <div
-        class="card border-0 shadow-sm mx-auto orcamento-documento"
-        style="max-width: 950px;"
-    >
+    <div class="card border-0 shadow-sm mx-auto orcamento-documento" style="max-width: 950px;">
 
         <div class="card-body p-5">
 
@@ -142,16 +160,11 @@
             {{-- CABEÇALHO DO DOCUMENTO --}}
             {{-- ====================================================== --}}
 
-            <div
-                class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4"
-            >
+            <div class="d-flex justify-content-between align-items-start border-bottom pb-4 mb-4">
 
                 <div>
 
-                    <h1
-                        class="fw-bold mb-0"
-                        style="color: #163b2b;"
-                    >
+                    <h1 class="fw-bold mb-0" style="color: #163b2b;">
                         RINALD'S
                     </h1>
 
@@ -168,9 +181,7 @@
 
                 <div class="text-end">
 
-                    <div
-                        class="text-uppercase text-muted fw-semibold"
-                    >
+                    <div class="text-uppercase text-muted fw-semibold">
                         Proposta Comercial
                     </div>
 
@@ -184,49 +195,49 @@
 
                         @switch($orcamento->status)
 
-                            @case('rascunho')
+                        @case('rascunho')
 
-                                <span class="badge bg-secondary">
-                                    Rascunho
-                                </span>
+                        <span class="badge bg-secondary">
+                            Rascunho
+                        </span>
 
-                            @break
-
-
-                            @case('enviado')
-
-                                <span class="badge bg-primary">
-                                    Enviado
-                                </span>
-
-                            @break
+                        @break
 
 
-                            @case('aceito')
+                        @case('enviado')
 
-                                <span class="badge bg-success">
-                                    Aceito
-                                </span>
+                        <span class="badge bg-primary">
+                            Enviado
+                        </span>
 
-                            @break
-
-
-                            @case('recusado')
-
-                                <span class="badge bg-danger">
-                                    Recusado
-                                </span>
-
-                            @break
+                        @break
 
 
-                            @case('expirado')
+                        @case('aceito')
 
-                                <span class="badge bg-warning text-dark">
-                                    Expirado
-                                </span>
+                        <span class="badge bg-success">
+                            Aceito
+                        </span>
 
-                            @break
+                        @break
+
+
+                        @case('recusado')
+
+                        <span class="badge bg-danger">
+                            Recusado
+                        </span>
+
+                        @break
+
+
+                        @case('expirado')
+
+                        <span class="badge bg-warning text-dark">
+                            Expirado
+                        </span>
+
+                        @break
 
                         @endswitch
 
@@ -243,10 +254,7 @@
 
             <div class="mb-5">
 
-                <h5
-                    class="fw-bold mb-3"
-                    style="color: #163b2b;"
-                >
+                <h5 class="fw-bold mb-3" style="color: #163b2b;">
                     Dados do Cliente
                 </h5>
 
@@ -262,9 +270,9 @@
                         <div class="fw-semibold">
 
                             {{ $orcamento
-                                ->atendimento
-                                ->cliente
-                                ->nome }}
+                            ->atendimento
+                            ->cliente
+                            ->nome }}
 
                         </div>
 
@@ -280,9 +288,9 @@
                         <div class="fw-semibold">
 
                             {{ $orcamento
-                                ->atendimento
-                                ->cliente
-                                ->telefone }}
+                            ->atendimento
+                            ->cliente
+                            ->telefone }}
 
                         </div>
 
@@ -290,55 +298,55 @@
 
 
                     @if(
-                        $orcamento
-                            ->atendimento
-                            ->cliente
-                            ->email
+                    $orcamento
+                    ->atendimento
+                    ->cliente
+                    ->email
                     )
 
-                        <div class="col-md-6">
+                    <div class="col-md-6">
 
-                            <small class="text-muted">
-                                E-mail
-                            </small>
+                        <small class="text-muted">
+                            E-mail
+                        </small>
 
-                            <div>
+                        <div>
 
-                                {{ $orcamento
-                                    ->atendimento
-                                    ->cliente
-                                    ->email }}
-
-                            </div>
+                            {{ $orcamento
+                            ->atendimento
+                            ->cliente
+                            ->email }}
 
                         </div>
+
+                    </div>
 
                     @endif
 
 
                     @if(
-                        $orcamento
-                            ->atendimento
-                            ->cliente
-                            ->cpf_cnpj
+                    $orcamento
+                    ->atendimento
+                    ->cliente
+                    ->cpf_cnpj
                     )
 
-                        <div class="col-md-6">
+                    <div class="col-md-6">
 
-                            <small class="text-muted">
-                                CPF / CNPJ
-                            </small>
+                        <small class="text-muted">
+                            CPF / CNPJ
+                        </small>
 
-                            <div>
+                        <div>
 
-                                {{ $orcamento
-                                    ->atendimento
-                                    ->cliente
-                                    ->cpf_cnpj }}
-
-                            </div>
+                            {{ $orcamento
+                            ->atendimento
+                            ->cliente
+                            ->cpf_cnpj }}
 
                         </div>
+
+                    </div>
 
                     @endif
 
@@ -353,17 +361,32 @@
 
             <div class="mb-5">
 
-                <h5
-                    class="fw-bold mb-3"
-                    style="color: #163b2b;"
-                >
+                <h5 class="fw-bold mb-3" style="color: #163b2b;">
                     Informações do Evento
                 </h5>
 
 
                 <div class="row g-4">
 
+                    <div class="col-md-4">
 
+                        <small class="text-muted">
+                            Espaço
+                        </small>
+
+                        <div class="fw-semibold">
+
+                            {{
+                            $orcamento
+                            ->espaco
+                            ?->nome
+                            ??
+                            'Não informado'
+                            }}
+
+                        </div>
+
+                    </div>
                     <div class="col-md-4">
 
                         <small class="text-muted">
@@ -373,9 +396,9 @@
                         <div class="fw-semibold">
 
                             {{ $orcamento
-                                ->atendimento
-                                ->tipo_evento
-                                ?? 'Não informado' }}
+                            ->atendimento
+                            ->tipo_evento
+                            ?? 'Não informado' }}
 
                         </div>
 
@@ -391,19 +414,19 @@
                         <div class="fw-semibold">
 
                             @if(
-                                $orcamento
-                                    ->atendimento
-                                    ->data_evento
+                            $orcamento
+                            ->atendimento
+                            ->data_evento
                             )
 
-                                {{ $orcamento
-                                    ->atendimento
-                                    ->data_evento
-                                    ->format('d/m/Y') }}
+                            {{ $orcamento
+                            ->atendimento
+                            ->data_evento
+                            ->format('d/m/Y') }}
 
                             @else
 
-                                Não informada
+                            Não informada
 
                             @endif
 
@@ -421,8 +444,8 @@
                         <div class="fw-semibold">
 
                             {{ $orcamento
-                                ->quantidade_convidados
-                                ?? 'Não informada' }}
+                            ->quantidade_convidados
+                            ?? 'Não informada' }}
 
                         </div>
 
@@ -439,10 +462,7 @@
 
             <div class="mb-5">
 
-                <h5
-                    class="fw-bold mb-3"
-                    style="color: #163b2b;"
-                >
+                <h5 class="fw-bold mb-3" style="color: #163b2b;">
                     Investimento
                 </h5>
 
@@ -464,10 +484,10 @@
                                     R$
 
                                     {{ number_format(
-                                        $orcamento->valor_locacao,
-                                        2,
-                                        ',',
-                                        '.'
+                                    $orcamento->valor_locacao,
+                                    2,
+                                    ',',
+                                    '.'
                                     ) }}
 
                                 </td>
@@ -486,10 +506,10 @@
                                     R$
 
                                     {{ number_format(
-                                        $orcamento->valor_adicionais,
-                                        2,
-                                        ',',
-                                        '.'
+                                    $orcamento->valor_adicionais,
+                                    2,
+                                    ',',
+                                    '.'
                                     ) }}
 
                                 </td>
@@ -498,41 +518,37 @@
 
 
                             @if(
-                                $orcamento->desconto > 0
+                            $orcamento->desconto > 0
                             )
 
-                                <tr>
+                            <tr>
 
-                                    <td class="text-success">
-                                        Desconto
-                                    </td>
+                                <td class="text-success">
+                                    Desconto
+                                </td>
 
-                                    <td
-                                        class="text-end fw-semibold text-success"
-                                    >
+                                <td class="text-end fw-semibold text-success">
 
-                                        - R$
+                                    - R$
 
-                                        {{ number_format(
-                                            $orcamento->desconto,
-                                            2,
-                                            ',',
-                                            '.'
-                                        ) }}
+                                    {{ number_format(
+                                    $orcamento->desconto,
+                                    2,
+                                    ',',
+                                    '.'
+                                    ) }}
 
-                                    </td>
+                                </td>
 
-                                </tr>
+                            </tr>
 
                             @endif
 
 
-                            <tr
-                                style="
+                            <tr style="
                                     border-top:
                                     2px solid #163b2b;
-                                "
-                            >
+                                ">
 
                                 <td>
 
@@ -544,18 +560,15 @@
 
                                 <td class="text-end">
 
-                                    <h4
-                                        class="fw-bold mb-0"
-                                        style="color: #163b2b;"
-                                    >
+                                    <h4 class="fw-bold mb-0" style="color: #163b2b;">
 
                                         R$
 
                                         {{ number_format(
-                                            $orcamento->valor_total,
-                                            2,
-                                            ',',
-                                            '.'
+                                        $orcamento->valor_total,
+                                        2,
+                                        ',',
+                                        '.'
                                         ) }}
 
                                     </h4>
@@ -579,29 +592,24 @@
 
             @if($orcamento->observacoes)
 
-                <div class="mb-5">
+            <div class="mb-5">
 
-                    <h5
-                        class="fw-bold mb-3"
-                        style="color: #163b2b;"
-                    >
-                        Observações
-                    </h5>
+                <h5 class="fw-bold mb-3" style="color: #163b2b;">
+                    Observações
+                </h5>
 
-                    <div
-                        class="p-3 bg-light rounded"
-                    >
+                <div class="p-3 bg-light rounded">
 
-                        {!! nl2br(
-                            e(
-                                $orcamento
-                                    ->observacoes
-                            )
-                        ) !!}
-
-                    </div>
+                    {!! nl2br(
+                    e(
+                    $orcamento
+                    ->observacoes
+                    )
+                    ) !!}
 
                 </div>
+
+            </div>
 
             @endif
 
@@ -610,9 +618,7 @@
             {{-- VALIDADE --}}
             {{-- ====================================================== --}}
 
-            <div
-                class="border-top pt-4"
-            >
+            <div class="border-top pt-4">
 
                 <div class="row">
 
@@ -625,8 +631,8 @@
                         <div class="fw-semibold">
 
                             {{ $orcamento
-                                ->created_at
-                                ->format('d/m/Y') }}
+                            ->created_at
+                            ->format('d/m/Y') }}
 
                         </div>
 
@@ -643,13 +649,13 @@
 
                             @if($orcamento->validade)
 
-                                {{ $orcamento
-                                    ->validade
-                                    ->format('d/m/Y') }}
+                            {{ $orcamento
+                            ->validade
+                            ->format('d/m/Y') }}
 
                             @else
 
-                                Não informada
+                            Não informada
 
                             @endif
 
@@ -666,14 +672,9 @@
             {{-- RODAPÉ --}}
             {{-- ====================================================== --}}
 
-            <div
-                class="text-center mt-5 pt-4 border-top"
-            >
+            <div class="text-center mt-5 pt-4 border-top">
 
-                <div
-                    class="fw-bold"
-                    style="color: #163b2b;"
-                >
+                <div class="fw-bold" style="color: #163b2b;">
                     Chácara Rinald's
                 </div>
 
@@ -693,7 +694,6 @@
     {{-- ====================================================== --}}
 
     <style>
-
         @media print {
 
             body {
@@ -731,7 +731,6 @@
             }
 
         }
-
     </style>
 
 </div>

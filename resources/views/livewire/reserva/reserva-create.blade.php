@@ -27,10 +27,28 @@
 
 
     {{-- ====================================================== --}}
-    {{-- RESERVA ORIGINADA DE ATENDIMENTO --}}
+    {{-- ORIGEM DA RESERVA --}}
     {{-- ====================================================== --}}
 
-    @if($atendimento_id)
+    @if($orcamento_id)
+
+        <div class="alert alert-success shadow-sm">
+
+            <div class="fw-bold">
+                ✓ Reserva originada de orçamento aceito
+            </div>
+
+            <div class="small mt-1">
+
+                Cliente, espaço, data, tipo do evento,
+                convidados e valor foram preenchidos
+                automaticamente com os dados do orçamento.
+
+            </div>
+
+        </div>
+
+    @elseif($atendimento_id)
 
         <div class="alert alert-success shadow-sm">
 
@@ -38,10 +56,11 @@
                 ✓ Reserva originada de um atendimento
             </div>
 
-
             <div class="small mt-1">
-                Cliente, data desejada e tipo do evento foram preenchidos
-                automaticamente com os dados do atendimento.
+
+                Cliente, data desejada e tipo do evento
+                foram preenchidos automaticamente.
+
             </div>
 
         </div>
@@ -50,7 +69,7 @@
 
 
     {{-- ====================================================== --}}
-    {{-- CARD PRINCIPAL --}}
+    {{-- CARD --}}
     {{-- ====================================================== --}}
 
     <div class="card border-0 shadow-sm">
@@ -62,10 +81,7 @@
                 <div class="row g-3">
 
 
-                    {{-- ====================================================== --}}
                     {{-- CLIENTE --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-8">
 
                         <label class="form-label fw-semibold">
@@ -97,9 +113,7 @@
 
                                     {{ $cliente->nome }}
 
-                                    @if(
-                                        $cliente->telefone
-                                    )
+                                    @if($cliente->telefone)
 
                                         -
                                         {{ $cliente->telefone }}
@@ -124,10 +138,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- DATA --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-4">
 
                         <label class="form-label fw-semibold">
@@ -156,10 +167,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- ESPAÇO --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-8">
 
                         <label class="form-label fw-semibold">
@@ -223,10 +231,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- INFORMAÇÕES DO ESPAÇO --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-4">
 
                         @if($espaco_id)
@@ -242,16 +247,19 @@
                             @endphp
 
 
-                            @if(
-                                $espacoSelecionado
-                            )
+                            @if($espacoSelecionado)
 
                                 <div
                                     class="border rounded p-3 bg-light h-100"
                                 >
 
                                     <div class="fw-semibold">
-                                        {{ $espacoSelecionado->nome }}
+
+                                        {{
+                                            $espacoSelecionado
+                                                ->nome
+                                        }}
+
                                     </div>
 
 
@@ -262,10 +270,41 @@
                                         {{
                                             $espacoSelecionado
                                                 ->capacidade_maxima
-                                            ?? 'Não informada'
+                                            ??
+                                            'Não informada'
                                         }}
 
                                         pessoas
+
+                                    </small>
+
+
+                                    <br>
+
+
+                                    <small class="text-muted">
+
+                                        Mesas:
+
+                                        {{
+                                            $espacoSelecionado
+                                                ->quantidade_mesas
+                                        }}
+
+                                    </small>
+
+
+                                    <br>
+
+
+                                    <small class="text-muted">
+
+                                        Cadeiras:
+
+                                        {{
+                                            $espacoSelecionado
+                                                ->quantidade_cadeiras
+                                        }}
 
                                     </small>
 
@@ -278,10 +317,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- TIPO DO EVENTO --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
@@ -301,36 +337,29 @@
                                 Selecione
                             </option>
 
-
                             <option value="Casamento">
                                 Casamento
                             </option>
-
 
                             <option value="Aniversário">
                                 Aniversário
                             </option>
 
-
                             <option value="Debutante">
                                 Debutante
                             </option>
-
 
                             <option value="Formatura">
                                 Formatura
                             </option>
 
-
                             <option value="Confraternização">
                                 Confraternização
                             </option>
 
-
                             <option value="Evento corporativo">
                                 Evento corporativo
                             </option>
-
 
                             <option value="Outro">
                                 Outro
@@ -350,10 +379,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- CONVIDADOS --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-3">
 
                         <label class="form-label fw-semibold">
@@ -363,12 +389,12 @@
 
                         <input
                             type="number"
+                            min="1"
                             wire:model="quantidade_convidados"
                             class="form-control
                             @error('quantidade_convidados')
                                 is-invalid
                             @enderror"
-                            min="1"
                             placeholder="Ex.: 150"
                         >
 
@@ -384,10 +410,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- STATUS --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-3">
 
                         <label class="form-label fw-semibold">
@@ -407,16 +430,13 @@
                                 Pré-reserva
                             </option>
 
-
                             <option value="confirmada">
                                 Confirmada
                             </option>
 
-
                             <option value="cancelada">
                                 Cancelada
                             </option>
-
 
                             <option value="realizada">
                                 Realizada
@@ -436,10 +456,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
-                    {{-- HORÁRIO INICIAL --}}
-                    {{-- ====================================================== --}}
-
+                    {{-- HORÁRIO --}}
                     <div class="col-md-3">
 
                         <label class="form-label fw-semibold">
@@ -450,27 +467,11 @@
                         <input
                             type="time"
                             wire:model="horario_inicio"
-                            class="form-control
-                            @error('horario_inicio')
-                                is-invalid
-                            @enderror"
+                            class="form-control"
                         >
-
-
-                        @error('horario_inicio')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
 
                     </div>
 
-
-                    {{-- ====================================================== --}}
-                    {{-- HORÁRIO FINAL --}}
-                    {{-- ====================================================== --}}
 
                     <div class="col-md-3">
 
@@ -482,28 +483,13 @@
                         <input
                             type="time"
                             wire:model="horario_fim"
-                            class="form-control
-                            @error('horario_fim')
-                                is-invalid
-                            @enderror"
+                            class="form-control"
                         >
-
-
-                        @error('horario_fim')
-
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-
-                        @enderror
 
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- VALOR --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
@@ -544,10 +530,7 @@
                     </div>
 
 
-                    {{-- ====================================================== --}}
                     {{-- OBSERVAÇÕES --}}
-                    {{-- ====================================================== --}}
-
                     <div class="col-12">
 
                         <label class="form-label fw-semibold">
@@ -579,9 +562,7 @@
                 </div>
 
 
-                {{-- ====================================================== --}}
-                {{-- ATENDIMENTO RELACIONADO --}}
-                {{-- ====================================================== --}}
+                {{-- IDs RELACIONADOS --}}
 
                 @if($atendimento_id)
 
@@ -593,10 +574,17 @@
                 @endif
 
 
-                {{-- ====================================================== --}}
-                {{-- BOTÕES --}}
-                {{-- ====================================================== --}}
+                @if($orcamento_id)
 
+                    <input
+                        type="hidden"
+                        wire:model="orcamento_id"
+                    >
+
+                @endif
+
+
+                {{-- BOTÕES --}}
                 <div
                     class="d-flex justify-content-end gap-2 mt-4"
                 >
