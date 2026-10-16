@@ -6,6 +6,8 @@ use App\Models\Cliente;
 use App\Models\Espaco;
 use App\Models\Reserva;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ReservaEdit extends Component
 {
@@ -45,27 +47,27 @@ class ReservaEdit extends Component
 
         $this->data_evento =
             $this->reserva
-                ->data_evento
-                ->format('Y-m-d');
+            ->data_evento
+            ->format('Y-m-d');
 
         $this->tipo_evento =
             $this->reserva->tipo_evento;
 
         $this->quantidade_convidados =
             $this->reserva
-                ->quantidade_convidados;
+            ->quantidade_convidados;
 
         $this->horario_inicio =
             $this->reserva
-                ->horario_inicio;
+            ->horario_inicio;
 
         $this->horario_fim =
             $this->reserva
-                ->horario_fim;
+            ->horario_fim;
 
         $this->valor_total =
             $this->reserva
-                ->valor_total;
+            ->valor_total;
 
         $this->status =
             $this->reserva->status;
@@ -80,34 +82,34 @@ class ReservaEdit extends Component
         return [
 
             'cliente_id' =>
-                'required|exists:clientes,id',
+            'required|exists:clientes,id',
 
             'espaco_id' =>
-                'required|exists:espacos,id',
+            'required|exists:espacos,id',
 
             'data_evento' =>
-                'required|date',
+            'required|date',
 
             'tipo_evento' =>
-                'required|max:100',
+            'required|max:100',
 
             'quantidade_convidados' =>
-                'nullable|integer|min:1',
+            'nullable|integer|min:1',
 
             'horario_inicio' =>
-                'nullable',
+            'nullable',
 
             'horario_fim' =>
-                'nullable',
+            'nullable',
 
             'valor_total' =>
-                'nullable|numeric|min:0',
+            'nullable|numeric|min:0',
 
             'status' =>
-                'required|in:pre_reserva,confirmada,cancelada,realizada',
+            'required|in:pre_reserva,confirmada,cancelada,realizada',
 
             'observacoes' =>
-                'nullable|max:2000',
+            'nullable|max:2000',
         ];
     }
 
@@ -115,174 +117,155 @@ class ReservaEdit extends Component
     protected $messages = [
 
         'cliente_id.required' =>
-            'Selecione um cliente.',
+        'Selecione um cliente.',
 
         'espaco_id.required' =>
-            'Selecione o espaço do evento.',
+        'Selecione o espaço do evento.',
 
         'espaco_id.exists' =>
-            'O espaço selecionado não é válido.',
+        'O espaço selecionado não é válido.',
 
         'data_evento.required' =>
-            'Informe a data do evento.',
+        'Informe a data do evento.',
 
         'tipo_evento.required' =>
-            'Informe o tipo do evento.',
+        'Informe o tipo do evento.',
     ];
+
 
 
     public function atualizar()
     {
-        $dados =
-            $this->validate();
+        $dados = $this->validate();
 
+        DB::transaction(function () use ($dados) {
 
-        /*
+            /*
         |--------------------------------------------------------------------------
-        | BUSCAR ESPAÇO
+        | BLOQUEAR O ESPAÇO DE DESTINO
         |--------------------------------------------------------------------------
         */
 
-        $espaco =
-            Espaco::find(
-                $this->espaco_id
-            );
+            $espaco = Espaco::query()
+                ->whereKey($dados['espaco_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
 
+            /*
+        |--------------------------------------------------------------------------
+        | VERIFICAR SE O ESPAÇO ESTÁ ATIVO
+        |--------------------------------------------------------------------------
+        */
 
-        /*
+            if (
+                !$espaco->ativo &&
+                (int) $this->reserva->espaco_id !==
+                (int) $espaco->id
+            ) {
+                throw ValidationException::withMessages([
+                    'espaco_id' =>
+                    'Não é possível transferir a reserva para um espaço inativo.',
+                ]);
+            }
+
+            /*
         |--------------------------------------------------------------------------
         | VALIDAR CAPACIDADE
         |--------------------------------------------------------------------------
         */
 
-        if (
-            $espaco
-            &&
-            $espaco->capacidade_maxima
-            &&
-            $this->quantidade_convidados
-            &&
-            $this->quantidade_convidados
-                > $espaco->capacidade_maxima
-        ) {
+            if (
+                $espaco->capacidade_maxima !== null &&
+                !empty($dados['quantidade_convidados']) &&
+                (int) $dados['quantidade_convidados'] >
+                (int) $espaco->capacidade_maxima
+            ) {
+                throw ValidationException::withMessages([
+                    'quantidade_convidados' =>
+                    'A capacidade máxima do espaço ' .
+                        $espaco->nome .
+                        ' é de ' .
+                        $espaco->capacidade_maxima .
+                        ' pessoas.',
+                ]);
+            }
 
-            $this->addError(
-                'quantidade_convidados',
-                'A quantidade de convidados ultrapassa a capacidade máxima de '
-                . $espaco->capacidade_maxima
-                . ' pessoas do espaço '
-                . $espaco->nome
-                . '.'
-            );
-
-            return;
-        }
-
-
-        /*
+            /*
         |--------------------------------------------------------------------------
-        | BLOQUEAR MESMO ESPAÇO NA MESMA DATA
+        | VERIFICAR CONFLITO COM OUTRAS RESERVAS
         |--------------------------------------------------------------------------
         */
 
-        $espacoOcupado =
-            Reserva::query()
-
-                ->where(
-                    'espaco_id',
-                    $this->espaco_id
+            if (
+                in_array(
+                    $dados['status'],
+                    ['pre_reserva', 'confirmada'],
+                    true
                 )
+            ) {
 
-                ->whereDate(
-                    'data_evento',
-                    $this->data_evento
-                )
-
-                ->where(
-                    'id',
-                    '!=',
-                    $this->reserva->id
-                )
-
-                ->whereIn(
-                    'status',
-                    [
+                $existeConflito = Reserva::query()
+                    ->where('espaco_id', $espaco->id)
+                    ->whereDate(
+                        'data_evento',
+                        $dados['data_evento']
+                    )
+                    ->where(
+                        'id',
+                        '!=',
+                        $this->reserva->id
+                    )
+                    ->whereIn('status', [
                         'pre_reserva',
                         'confirmada',
-                    ]
-                )
+                    ])
+                    ->exists();
 
-                ->exists();
+                if ($existeConflito) {
+                    throw ValidationException::withMessages([
+                        'data_evento' =>
+                        'O espaço ' .
+                            $espaco->nome .
+                            ' já possui uma reserva ou pré-reserva nesta data.',
+                    ]);
+                }
+            }
 
-
-        if (
-            $espacoOcupado
-            &&
-            in_array(
-                $this->status,
-                [
-                    'pre_reserva',
-                    'confirmada',
-                ]
-            )
-        ) {
-
-            $nomeEspaco =
-                $espaco
-                    ? $espaco->nome
-                    : 'selecionado';
-
-
-            $this->addError(
-                'data_evento',
-                'O espaço '
-                . $nomeEspaco
-                . ' já possui uma reserva ou pré-reserva nesta data.'
-            );
-
-            return;
-        }
-
-
-        /*
+            /*
         |--------------------------------------------------------------------------
-        | ATUALIZAR
+        | ATUALIZAR A RESERVA
         |--------------------------------------------------------------------------
         */
 
-        $this->reserva
-            ->update($dados);
-
+            $this->reserva->update($dados);
+        }, 3);
 
         session()->flash(
             'success',
             'Reserva atualizada com sucesso!'
         );
 
-
-        return redirect()
-            ->route(
-                'reservas.index'
-            );
+        return redirect()->route('reservas.index');
     }
+
 
 
     public function render()
     {
         $clientes =
             Cliente::query()
-                ->orderBy('nome')
-                ->get();
+            ->orderBy('nome')
+            ->get();
 
 
         $espacos =
             Espaco::query()
-                ->where(
-                    'ativo',
-                    true
-                )
-                ->orderBy('nome')
-                ->get();
+            ->where(
+                'ativo',
+                true
+            )
+            ->orderBy('nome')
+            ->get();
 
 
         /*
