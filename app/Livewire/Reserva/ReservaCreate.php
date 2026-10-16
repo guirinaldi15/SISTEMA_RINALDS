@@ -8,6 +8,8 @@ use App\Models\Espaco;
 use App\Models\Orcamento;
 use App\Models\Reserva;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class ReservaCreate extends Component
 {
@@ -314,52 +316,78 @@ class ReservaCreate extends Component
     }
 
 
-    public function salvar()
-    {
-        $dados =
-            $this->validate();
+   
+public function salvar()
+{
+    $dados = $this->validate();
 
+    $reserva = DB::transaction(function () use ($dados) {
 
         /*
         |--------------------------------------------------------------------------
-        | IMPEDIR DUAS RESERVAS PARA O MESMO ATENDIMENTO
+        | BLOQUEAR O ESPAÇO DURANTE A RESERVA
         |--------------------------------------------------------------------------
         */
 
-        if ($this->atendimento_id) {
+        $espaco = Espaco::query()
+            ->whereKey($dados['espaco_id'])
+            ->lockForUpdate()
+            ->firstOrFail();
 
-            $jaPossuiReserva =
-                Reserva::query()
-                    ->where(
-                        'atendimento_id',
-                        $this->atendimento_id
-                    )
-                    ->exists();
+        if (!$espaco->ativo) {
+            throw ValidationException::withMessages([
+                'espaco_id' => 'Este espaço está inativo.',
+            ]);
+        }
 
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR ORÇAMENTO DE ORIGEM
+        |--------------------------------------------------------------------------
+        */
 
-            if ($jaPossuiReserva) {
+        if ($this->orcamento_id) {
 
-                $this->addError(
-                    'data_evento',
-                    'Este atendimento já possui uma reserva.'
-                );
+            $orcamento = Orcamento::findOrFail(
+                $this->orcamento_id
+            );
 
-                return;
+            if (
+                $orcamento->status !== 'aceito' ||
+                (int) $orcamento->atendimento_id !==
+                (int) $dados['atendimento_id'] ||
+                (int) $orcamento->espaco_id !==
+                (int) $dados['espaco_id'] ||
+                (int) $orcamento->atendimento->cliente_id !==
+                (int) $dados['cliente_id']
+            ) {
+                throw ValidationException::withMessages([
+                    'espaco_id' => 'Os dados não correspondem ao orçamento aceito.',
+                ]);
             }
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | BUSCAR ESPAÇO
+        | IMPEDIR RESERVA DUPLICADA POR ATENDIMENTO
         |--------------------------------------------------------------------------
         */
 
-        $espaco =
-            Espaco::find(
-                $this->espaco_id
-            );
+        if (!empty($dados['atendimento_id'])) {
 
+            $existe = Reserva::query()
+                ->where(
+                    'atendimento_id',
+                    $dados['atendimento_id']
+                )
+                ->exists();
+
+            if ($existe) {
+                throw ValidationException::withMessages([
+                    'data_evento' => 'Este atendimento já possui uma reserva.',
+                ]);
+            }
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -368,138 +396,92 @@ class ReservaCreate extends Component
         */
 
         if (
-            $espaco
-            &&
-            $espaco->capacidade_maxima
-            &&
-            $this->quantidade_convidados
-            &&
-            $this->quantidade_convidados
-                >
-                $espaco->capacidade_maxima
+            $espaco->capacidade_maxima !== null &&
+            !empty($dados['quantidade_convidados']) &&
+            (int) $dados['quantidade_convidados'] >
+            (int) $espaco->capacidade_maxima
         ) {
-
-            $this->addError(
-                'quantidade_convidados',
-                'A quantidade de convidados ultrapassa a capacidade máxima de '
-                . $espaco->capacidade_maxima
-                . ' pessoas do espaço '
-                . $espaco->nome
-                . '.'
-            );
-
-            return;
+            throw ValidationException::withMessages([
+                'quantidade_convidados' =>
+                    'A capacidade máxima do espaço é de ' .
+                    $espaco->capacidade_maxima .
+                    ' pessoas.',
+            ]);
         }
-
 
         /*
         |--------------------------------------------------------------------------
-        | VERIFICAR DISPONIBILIDADE
+        | IMPEDIR DUAS RESERVAS ATIVAS NO MESMO DIA
         |--------------------------------------------------------------------------
         */
 
-        $espacoOcupado =
-            Reserva::query()
-
-                ->where(
-                    'espaco_id',
-                    $this->espaco_id
-                )
-
-                ->whereDate(
-                    'data_evento',
-                    $this->data_evento
-                )
-
-                ->whereIn(
-                    'status',
-                    [
-                        'pre_reserva',
-                        'confirmada',
-                    ]
-                )
-
-                ->exists();
-
-
         if (
-            $espacoOcupado
-            &&
             in_array(
-                $this->status,
-                [
-                    'pre_reserva',
-                    'confirmada',
-                ]
+                $dados['status'],
+                ['pre_reserva', 'confirmada'],
+                true
             )
         ) {
 
-            $this->addError(
-                'data_evento',
-                'O espaço '
-                . (
-                    $espaco
-                        ? $espaco->nome
-                        : 'selecionado'
+            $ocupado = Reserva::query()
+                ->where('espaco_id', $espaco->id)
+                ->whereDate(
+                    'data_evento',
+                    $dados['data_evento']
                 )
-                . ' já possui uma reserva ou pré-reserva nesta data.'
-            );
+                ->whereIn('status', [
+                    'pre_reserva',
+                    'confirmada',
+                ])
+                ->exists();
 
-            return;
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | CRIAR RESERVA
-        |--------------------------------------------------------------------------
-        */
-
-        $reserva =
-            Reserva::create(
-                $dados
-            );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | FECHAR ATENDIMENTO
-        |--------------------------------------------------------------------------
-        */
-
-        if ($this->atendimento_id) {
-
-            $atendimento =
-                Atendimento::find(
-                    $this->atendimento_id
-                );
-
-
-            if ($atendimento) {
-
-                $atendimento->update([
-                    'status' =>
-                        'fechado',
-
-                    'ultimo_contato' =>
-                        now(),
+            if ($ocupado) {
+                throw ValidationException::withMessages([
+                    'data_evento' =>
+                        'Este espaço já está reservado nesta data.',
                 ]);
             }
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | GRAVAR RESERVA
+        |--------------------------------------------------------------------------
+        */
 
-        session()->flash(
-            'success',
-            'Reserva cadastrada com sucesso!'
-        );
+        $reserva = Reserva::create($dados);
 
+        /*
+        |--------------------------------------------------------------------------
+        | ATUALIZAR ATENDIMENTO
+        |--------------------------------------------------------------------------
+        */
 
-        return redirect()
-            ->route(
-                'reservas.show',
-                $reserva->id
-            );
-    }
+        if (!empty($dados['atendimento_id'])) {
+
+            Atendimento::whereKey(
+                $dados['atendimento_id']
+            )->update([
+                'status' => 'fechado',
+                'ultimo_contato' => now(),
+            ]);
+        }
+
+        return $reserva;
+
+    }, 3);
+
+    session()->flash(
+        'success',
+        'Reserva cadastrada com sucesso!'
+    );
+
+    return redirect()->route(
+        'reservas.show',
+        $reserva->id
+    );
+}
+
 
 
     public function render()
