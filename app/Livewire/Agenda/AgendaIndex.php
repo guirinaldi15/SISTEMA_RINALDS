@@ -2,24 +2,31 @@
 
 namespace App\Livewire\Agenda;
 
+use App\Models\Espaco;
 use Livewire\Component;
 use App\Models\Reserva;
 use Carbon\Carbon;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 
+#[Layout('layouts.app')]
+#[Title("Agenda | Rinald's Gestão")]
 class AgendaIndex extends Component
 {
-    public $mes;
-    public $ano;
+    public int $mes;
+    public int $ano;
 
-    public function mount()
-{
-    Carbon::setLocale('pt_BR');
+    public string $espaco_id = '';
 
-    $this->mes = now()->month;
-    $this->ano = now()->year;
-}
+    public function mount(): void
+    {
+        Carbon::setLocale('pt_BR');
 
-    public function mesAnterior()
+        $this->mes = now()->month;
+        $this->ano = now()->year;
+    }
+
+    public function mesAnterior(): void
     {
         $data = Carbon::create(
             $this->ano,
@@ -31,7 +38,7 @@ class AgendaIndex extends Component
         $this->ano = $data->year;
     }
 
-    public function proximoMes()
+    public function proximoMes(): void
     {
         $data = Carbon::create(
             $this->ano,
@@ -43,7 +50,7 @@ class AgendaIndex extends Component
         $this->ano = $data->year;
     }
 
-    public function hoje()
+    public function hoje(): void
     {
         $this->mes = now()->month;
         $this->ano = now()->year;
@@ -59,38 +66,49 @@ class AgendaIndex extends Component
 
         $fimMes = $inicioMes->copy()->endOfMonth();
 
-        $reservas = Reserva::with('cliente')
-            ->whereBetween(
-                'data_evento',
-                [
-                    $inicioMes->format('Y-m-d'),
-                    $fimMes->format('Y-m-d')
-                ]
-            )
+        $espacos = Espaco::orderBy('nome')->get();
+
+        $reservas = Reserva::with([
+            'cliente',
+            'espaco',
+        ])
+            ->whereBetween('data_evento', [
+                $inicioMes->toDateString(),
+                $fimMes->toDateString(),
+            ])
             ->where('status', '!=', 'cancelada')
+            ->when(
+                $this->espaco_id !== '',
+                fn ($query) => $query->where(
+                    'espaco_id',
+                    $this->espaco_id
+                )
+            )
             ->orderBy('data_evento')
             ->get();
 
         $reservasPorDia = $reservas->groupBy(
-            function ($reserva) {
-                return $reserva->data_evento
-                    ->format('Y-m-d');
-            }
+            fn ($reserva) =>
+                $reserva->data_evento->format('Y-m-d')
         );
 
         $diasNoMes = $inicioMes->daysInMonth;
+        $primeiroDiaSemana = $inicioMes->dayOfWeekIso;
 
-        $primeiroDiaSemana =
-            $inicioMes->dayOfWeekIso;
+        $mes = $this->mes;
+        $ano = $this->ano;
 
         return view(
             'livewire.agenda.agenda-index',
             compact(
                 'inicioMes',
                 'fimMes',
+                'espacos',
+                'reservasPorDia',
                 'diasNoMes',
                 'primeiroDiaSemana',
-                'reservasPorDia'
+                'mes',
+                'ano'
             )
         );
     }
