@@ -77,10 +77,10 @@ class EspacoEdit extends Component
                 'nullable|integer|min:1',
 
             'quantidade_mesas' =>
-                'required|integer|min:0',
+                'nullable|integer|min:0',
 
             'quantidade_cadeiras' =>
-                'required|integer|min:0',
+                'nullable|integer|min:0',
 
             'tipo_cadeira' =>
                 'nullable|max:100',

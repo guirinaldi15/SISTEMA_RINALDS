@@ -1,324 +1,204 @@
+
 <div class="container-fluid py-4 px-4">
 
-    <div
-        class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
-    >
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            Espaços da Chácara
+        </h2>
 
-        <div>
-
-            <h2 class="fw-bold mb-1">
-                Espaços
-            </h2>
-
-            <p class="text-muted mb-0">
-                Gerencie os ambientes disponíveis para eventos.
-            </p>
-
-        </div>
-
-
-        <a
-            href="{{ route('espacos.create') }}"
-            class="btn btn-success"
-        >
-            + Novo Espaço
-        </a>
-
+        <p class="text-muted mb-0">
+            Consulte e atualize as informações dos
+            ambientes da Chácara Rinald's.
+        </p>
     </div>
-
 
     @if(session('success'))
-
-        <div
-            class="alert alert-success alert-dismissible fade show"
-        >
-
+        <div class="alert alert-success">
             {{ session('success') }}
-
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-            ></button>
-
         </div>
-
     @endif
 
-
-    <div class="card border-0 shadow-sm mb-4">
-
-        <div class="card-body">
-
-            <div class="row g-3">
-
-                <div class="col-md-8">
-
-                    <input
-                        type="text"
-                        wire:model.live="search"
-                        class="form-control"
-                        placeholder="Buscar espaço..."
-                    >
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <select
-                        wire:model.live="status"
-                        class="form-select"
-                    >
-
-                        <option value="">
-                            Todos
-                        </option>
-
-                        <option value="1">
-                            Ativos
-                        </option>
-
-                        <option value="0">
-                            Inativos
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="alert alert-info border-0">
+        A chácara possui dois espaços cadastrados.
+        Para alterar capacidades, estrutura ou valores,
+        utilize a opção <strong>Editar</strong>.
     </div>
 
+    <div class="row g-4">
 
-    <div class="card border-0 shadow-sm">
+        @forelse($espacos as $espaco)
 
-        <div class="card-body">
+            <div class="col-lg-6">
 
-            <div class="table-responsive">
+                <div class="card border-0 shadow-sm h-100">
 
-                <table class="table align-middle">
+                    <div class="card-body p-4">
 
-                    <thead>
+                        <div class="d-flex justify-content-between
+                                    align-items-start gap-2 mb-3">
 
-                        <tr>
+                            <h4 class="fw-bold mb-0">
+                                {{ $espaco->nome }}
+                            </h4>
 
-                            <th>
-                                Espaço
-                            </th>
+                            @if($espaco->ativo)
+                                <span class="badge bg-success">
+                                    Ativo
+                                </span>
+                            @else
+                                <span class="badge bg-secondary">
+                                    Inativo
+                                </span>
+                            @endif
 
-                            <th>
-                                Capacidade
-                            </th>
+                        </div>
 
-                            <th>
-                                Mesas
-                            </th>
+                        <p class="text-muted">
+                            {{ $espaco->descricao ?: 'Sem descrição.' }}
+                        </p>
 
-                            <th>
-                                Cadeiras
-                            </th>
+                        <hr>
 
-                            <th>
-                                Valor base
-                            </th>
+                        <div class="row g-3 mb-3">
 
-                            <th>
-                                Status
-                            </th>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    Capacidade
+                                </small>
+                                <div class="fw-semibold">
+                                    {{ $espaco->capacidade_maxima ?? '—' }}
+                                    pessoas
+                                </div>
+                            </div>
 
-                            <th class="text-end">
-                                Ações
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        @forelse($espacos as $espaco)
-
-                            <tr>
-
-                                <td>
-
-                                    <div class="fw-semibold">
-                                        {{ $espaco->nome }}
-                                    </div>
-
-                                    <small class="text-muted">
-
-                                        {{
-                                            \Illuminate\Support\Str::limit(
-                                                $espaco->descricao,
-                                                60
-                                            )
-                                        }}
-
-                                    </small>
-
-                                </td>
-
-
-                                <td>
-
-                                    @if($espaco->capacidade_maxima)
-
-                                        {{ $espaco->capacidade_maxima }}
-                                        pessoas
-
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    Valor base
+                                </small>
+                                <div class="fw-semibold">
+                                    @if((float) $espaco->valor_base > 0)
+                                        R$ {{ number_format(
+                                            $espaco->valor_base,
+                                            2,
+                                            ',',
+                                            '.'
+                                        ) }}
                                     @else
-
-                                        —
-
+                                        A definir
                                     @endif
+                                </div>
+                            </div>
 
-                                </td>
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    Mesas
+                                </small>
+                                <div class="fw-semibold">
+                                    {{ $espaco->quantidade_mesas ?? '—' }}
+                                </div>
+                            </div>
 
+                            <div class="col-6">
+                                <small class="text-muted">
+                                    Cadeiras
+                                </small>
+                                <div class="fw-semibold">
+                                    {{ $espaco->quantidade_cadeiras ?? '—' }}
+                                </div>
+                            </div>
 
-                                <td>
-                                    {{ $espaco->quantidade_mesas }}
-                                </td>
+                        </div>
 
+                        <h6 class="fw-bold">
+                            Estrutura disponível
+                        </h6>
 
-                                <td>
+                        <div class="d-flex flex-wrap gap-2 mb-4">
 
-                                    {{ $espaco->quantidade_cadeiras }}
+                            @if($espaco->possui_piscina)
+                                <span class="badge bg-light text-dark border">
+                                    Piscina
+                                </span>
+                            @endif
 
-                                    @if($espaco->tipo_cadeira)
+                            @if($espaco->possui_churrasqueira)
+                                <span class="badge bg-light text-dark border">
+                                    Churrasqueira
+                                </span>
+                            @endif
 
-                                        <br>
+                            @if($espaco->possui_cozinha)
+                                <span class="badge bg-light text-dark border">
+                                    Cozinha
+                                </span>
+                            @endif
 
-                                        <small class="text-muted">
-                                            {{ $espaco->tipo_cadeira }}
-                                        </small>
+                            @if($espaco->possui_ar_condicionado)
+                                <span class="badge bg-light text-dark border">
+                                    Ar-condicionado
+                                </span>
+                            @endif
 
-                                    @endif
+                            @if($espaco->possui_bar_molhado)
+                                <span class="badge bg-light text-dark border">
+                                    Bar molhado
+                                </span>
+                            @endif
 
-                                </td>
+                            @if($espaco->possui_estacionamento)
+                                <span class="badge bg-light text-dark border">
+                                    Estacionamento
+                                </span>
+                            @endif
 
+                            @if($espaco->possui_wifi)
+                                <span class="badge bg-light text-dark border">
+                                    Wi-Fi
+                                </span>
+                            @endif
 
-                                <td>
+                            @if($espaco->possui_acomodacao)
+                                <span class="badge bg-light text-dark border">
+                                    Acomodação
+                                </span>
+                            @endif
 
-                                    @if($espaco->valor_base)
+                        </div>
 
-                                        R$
-                                        {{
-                                            number_format(
-                                                $espaco->valor_base,
-                                                2,
-                                                ',',
-                                                '.'
-                                            )
-                                        }}
+                        <div class="d-flex gap-2">
 
-                                    @else
+                            <a
+                                href="{{ route('espacos.show', $espaco->id) }}"
+                                class="btn btn-outline-secondary"
+                            >
+                                Visualizar
+                            </a>
 
-                                        A consultar
+                            <a
+                                href="{{ route('espacos.edit', $espaco->id) }}"
+                                class="btn btn-success"
+                            >
+                                Editar informações
+                            </a>
 
-                                    @endif
+                        </div>
 
-                                </td>
+                    </div>
 
-
-                                <td>
-
-                                    @if($espaco->ativo)
-
-                                        <span class="badge bg-success">
-                                            Ativo
-                                        </span>
-
-                                    @else
-
-                                        <span class="badge bg-secondary">
-                                            Inativo
-                                        </span>
-
-                                    @endif
-
-                                </td>
-
-
-                                <td class="text-end">
-
-                                    <div
-                                        class="d-flex justify-content-end gap-1"
-                                    >
-
-                                        <a
-                                            href="{{ route(
-                                                'espacos.show',
-                                                $espaco->id
-                                            ) }}"
-                                            class="btn btn-sm btn-outline-secondary"
-                                        >
-                                            Ver
-                                        </a>
-
-
-                                        <a
-                                            href="{{ route(
-                                                'espacos.edit',
-                                                $espaco->id
-                                            ) }}"
-                                            class="btn btn-sm btn-outline-primary"
-                                        >
-                                            Editar
-                                        </a>
-
-
-                                        <a
-                                            href="{{ route(
-                                                'espacos.delete',
-                                                $espaco->id
-                                            ) }}"
-                                            class="btn btn-sm btn-outline-danger"
-                                        >
-                                            Excluir
-                                        </a>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        @empty
-
-                            <tr>
-
-                                <td
-                                    colspan="7"
-                                    class="text-center py-5"
-                                >
-
-                                    <div class="fs-1 mb-2">
-                                        🏡
-                                    </div>
-
-                                    <div class="fw-semibold">
-                                        Nenhum espaço cadastrado.
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        @endforelse
-
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
 
-        </div>
+        @empty
+
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    Nenhum espaço cadastrado.
+                    Execute php artisan db:seed.
+                </div>
+            </div>
+
+        @endforelse
 
     </div>
 

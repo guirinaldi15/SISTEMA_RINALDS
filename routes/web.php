@@ -180,44 +180,31 @@ Route::middleware('auth')
     ->group(function () {
 
     /*
+
+/*
 |--------------------------------------------------------------------------
-| ESPAÇOS
+| ESPAÇOS FIXOS
+|--------------------------------------------------------------------------
+| Permite apenas listar, visualizar e editar.
+| Não permite criar nem excluir novos espaços.
 |--------------------------------------------------------------------------
 */
 
 Route::get(
     '/espacos',
     EspacoIndex::class
-)
-    ->name('espacos.index');
-
-
-Route::get(
-    '/espacos/novo',
-    EspacoCreate::class
-)
-    ->name('espacos.create');
-
+)->name('espacos.index');
 
 Route::get(
     '/espacos/{id}/editar',
     EspacoEdit::class
-)
-    ->name('espacos.edit');
-
-
-Route::get(
-    '/espacos/{id}/excluir',
-    EspacoDelete::class
-)
-    ->name('espacos.delete');
-
+)->name('espacos.edit');
 
 Route::get(
     '/espacos/{id}',
     EspacoShow::class
-)
-    ->name('espacos.show');
+)->name('espacos.show');
+
 
 
         /*
