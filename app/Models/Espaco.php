@@ -55,4 +55,20 @@ class Espaco extends Model
             'valor_base' => 'decimal:2',
         ];
     }
+
+    
+/*
+|--------------------------------------------------------------------------
+| RELACIONAMENTO COM RESERVAS
+|--------------------------------------------------------------------------
+*/
+
+public function reservas()
+{
+    return $this->hasMany(
+        \App\Models\Reserva::class,
+        'espaco_id'
+    );
+}
+
 }
