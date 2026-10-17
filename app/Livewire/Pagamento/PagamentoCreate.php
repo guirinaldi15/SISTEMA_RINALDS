@@ -5,6 +5,8 @@ namespace App\Livewire\Pagamento;
 use Livewire\Component;
 use App\Models\Reserva;
 use App\Models\Pagamento;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class PagamentoCreate extends Component
 {
@@ -31,7 +33,6 @@ class PagamentoCreate extends Component
 
             $this->reserva_id =
                 $reserva->id;
-
         }
     }
 
@@ -39,70 +40,130 @@ class PagamentoCreate extends Component
     protected $rules = [
 
         'reserva_id' =>
-            'required|exists:reservas,id',
+        'required|exists:reservas,id',
 
         'descricao' =>
-            'required|max:150',
+        'required|max:150',
 
         'valor' =>
-            'required|numeric|min:0.01',
+        'required|numeric|min:0.01',
 
         'data_vencimento' =>
-            'required|date',
+        'required|date',
 
         'data_pagamento' =>
-            'nullable|date',
+        'nullable|date',
 
         'forma_pagamento' =>
-            'nullable|in:pix,dinheiro,cartao_credito,cartao_debito,transferencia,boleto,outro',
+        'nullable|in:pix,dinheiro,cartao_credito,cartao_debito,transferencia,boleto,outro',
 
         'status' =>
-            'required|in:pendente,pago,cancelado',
+        'required|in:pendente,pago,cancelado',
 
         'observacoes' =>
-            'nullable|max:2000',
+        'nullable|max:2000',
     ];
+
 
 
     public function salvar()
     {
-        $dados =
-            $this->validate();
+        $dados = $this->validate();
 
+        DB::transaction(function () use ($dados) {
 
-        if (
-            $this->status === 'pago'
-            &&
-            !$this->data_pagamento
-        ) {
+            /*
+        |--------------------------------------------------------------------------
+        | BLOQUEAR RESERVA DURANTE O PAGAMENTO
+        |--------------------------------------------------------------------------
+        */
 
-            $dados['data_pagamento'] =
-                today();
+            $reserva = Reserva::query()
+                ->whereKey($dados['reserva_id'])
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        }
+            /*
+        |--------------------------------------------------------------------------
+        | NÃO PERMITIR PAGAMENTOS EM RESERVAS CANCELADAS
+        |--------------------------------------------------------------------------
+        */
 
+            if ($reserva->status === 'cancelada') {
+                throw ValidationException::withMessages([
+                    'reserva_id' =>
+                    'Não é possível cadastrar pagamentos para uma reserva cancelada.',
+                ]);
+            }
 
-        if (
-            $this->status !== 'pago'
-        ) {
+            /*
+        |--------------------------------------------------------------------------
+        | VALIDAR SALDO RESTANTE
+        |--------------------------------------------------------------------------
+        */
 
-            $dados['data_pagamento'] =
-                null;
+            if ($dados['status'] === 'pago') {
 
-        }
+                $totalPago = (float) Pagamento::query()
+                    ->where('reserva_id', $reserva->id)
+                    ->where('status', 'pago')
+                    ->sum('valor');
 
+                $valorTotal = (float) $reserva->valor_total;
 
-        Pagamento::create($dados);
+                $saldoRestante = max(
+                    0,
+                    round($valorTotal - $totalPago, 2)
+                );
 
+                if (
+                    $saldoRestante <= 0 ||
+                    round((float) $dados['valor'], 2) > $saldoRestante
+                ) {
+                    throw ValidationException::withMessages([
+                        'valor' =>
+                        'O pagamento ultrapassa o saldo restante de R$ ' .
+                            number_format(
+                                $saldoRestante,
+                                2,
+                                ',',
+                                '.'
+                            ) . '.',
+                    ]);
+                }
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | DEFINIR DATA DO PAGAMENTO
+        |--------------------------------------------------------------------------
+        */
+
+            if ($dados['status'] === 'pago') {
+
+                if (empty($dados['data_pagamento'])) {
+                    $dados['data_pagamento'] = today();
+                }
+            } else {
+
+                $dados['data_pagamento'] = null;
+            }
+
+            /*
+        |--------------------------------------------------------------------------
+        | CADASTRAR PAGAMENTO
+        |--------------------------------------------------------------------------
+        */
+
+            Pagamento::create($dados);
+        }, 3);
 
         session()->flash(
             'success',
             'Pagamento cadastrado com sucesso!'
         );
 
-
-        return redirect()
-            ->route('pagamentos.index');
+        return redirect()->route('pagamentos.index');
     }
 
 
@@ -110,14 +171,14 @@ class PagamentoCreate extends Component
     {
         $reservas =
             Reserva::with('cliente')
-                ->whereNotIn(
-                    'status',
-                    ['cancelada']
-                )
-                ->orderByDesc(
-                    'data_evento'
-                )
-                ->get();
+            ->whereNotIn(
+                'status',
+                ['cancelada']
+            )
+            ->orderByDesc(
+                'data_evento'
+            )
+            ->get();
 
 
         return view(
