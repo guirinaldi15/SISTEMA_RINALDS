@@ -176,7 +176,7 @@ Route::post(
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth')
+Route::middleware(['auth', 'usuario.ativo'])
     ->group(function () {
 
     

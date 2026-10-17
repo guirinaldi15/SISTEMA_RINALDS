@@ -18,11 +18,15 @@ class Login extends Component
 
     public bool $remember = false;
 
+    /*
+    |--------------------------------------------------------------------------
+    | REGRAS DE VALIDAÇÃO
+    |--------------------------------------------------------------------------
+    */
 
     protected function rules(): array
     {
         return [
-
             'email' => [
                 'required',
                 'email',
@@ -32,15 +36,18 @@ class Login extends Component
                 'required',
                 'string',
             ],
-
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | MENSAGENS DE VALIDAÇÃO
+    |--------------------------------------------------------------------------
+    */
 
     protected function messages(): array
     {
         return [
-
             'email.required' =>
                 'Informe seu e-mail.',
 
@@ -49,21 +56,18 @@ class Login extends Component
 
             'password.required' =>
                 'Informe sua senha.',
-
         ];
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | REALIZAR LOGIN
+    |--------------------------------------------------------------------------
+    */
 
     public function entrar()
     {
-        /*
-        |--------------------------------------------------------------------------
-        | VALIDAR
-        |--------------------------------------------------------------------------
-        */
-
         $this->validate();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -72,47 +76,36 @@ class Login extends Component
         */
 
         $email = strtolower(
-            trim(
-                $this->email
-            )
+            trim($this->email)
         );
-
 
         /*
         |--------------------------------------------------------------------------
-        | AUTENTICAR
+        | AUTENTICAR SOMENTE USUÁRIOS ATIVOS
         |--------------------------------------------------------------------------
         */
 
         $autenticado = Auth::attempt(
             [
-                'email' =>
-                    $email,
-
-                'password' =>
-                    $this->password,
+                'email' => $email,
+                'password' => $this->password,
+                'ativo' => true,
             ],
             $this->remember
         );
 
-
         /*
         |--------------------------------------------------------------------------
-        | ERRO
+        | TRATAR FALHA DE AUTENTICAÇÃO
         |--------------------------------------------------------------------------
         */
 
         if (!$autenticado) {
-
             throw ValidationException::withMessages([
-
                 'email' =>
-                    'E-mail ou senha incorretos.',
-
+                    'E-mail ou senha incorretos, ou usuário desativado.',
             ]);
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -122,26 +115,25 @@ class Login extends Component
 
         session()->regenerate();
 
-
         /*
         |--------------------------------------------------------------------------
-        | DASHBOARD
+        | REDIRECIONAR PARA O DASHBOARD
         |--------------------------------------------------------------------------
         */
 
-        return redirect()
-            ->intended(
-                route(
-                    'dashboard.index'
-                )
-            );
+        return redirect()->intended(
+            route('dashboard.index')
+        );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | RENDERIZAR TELA DE LOGIN
+    |--------------------------------------------------------------------------
+    */
 
     public function render()
     {
-        return view(
-            'livewire.auth.login'
-        );
+        return view('livewire.auth.login');
     }
 }
