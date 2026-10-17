@@ -12,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 use Tests\TestCase;
+use App\Livewire\Pagamento\PagamentoEdit;
 
 class PagamentoTest extends TestCase
 {
@@ -311,5 +312,143 @@ class PagamentoTest extends TestCase
             ->assertHasErrors(['valor']);
 
         $this->assertDatabaseCount('pagamentos', 1);
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| TESTE 9 - EDITAR PAGAMENTO DENTRO DO SALDO
+|--------------------------------------------------------------------------
+*/
+
+    public function test_permite_editar_pagamento_dentro_do_saldo(): void
+    {
+        $pagamento = $this->criarPagamento(1500);
+
+        Livewire::test(PagamentoEdit::class, [
+            'id' => $pagamento->id,
+        ])
+            ->set('valor', 2000)
+            ->call('atualizar')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('pagamentos', [
+            'id' => $pagamento->id,
+            'valor' => 2000,
+            'status' => 'pago',
+        ]);
+
+        $this->assertEquals(
+            3000,
+            $this->reserva->fresh()->saldo_restante
+        );
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| TESTE 10 - IMPEDIR EDIÇÃO ACIMA DO SALDO
+|--------------------------------------------------------------------------
+*/
+
+    public function test_impede_editar_pagamento_acima_do_saldo(): void
+    {
+        $pagamento = $this->criarPagamento(1500);
+        $this->criarPagamento(3000);
+
+        Livewire::test(PagamentoEdit::class, [
+            'id' => $pagamento->id,
+        ])
+            ->set('valor', 2500)
+            ->call('atualizar')
+            ->assertHasErrors(['valor']);
+
+        $this->assertDatabaseHas('pagamentos', [
+            'id' => $pagamento->id,
+            'valor' => 1500,
+        ]);
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| TESTE 11 - MANTER O PRÓPRIO PAGAMENTO
+|--------------------------------------------------------------------------
+*/
+
+    public function test_permite_salvar_pagamento_sem_alterar_valor(): void
+    {
+        $pagamento = $this->criarPagamento(2000);
+        $this->criarPagamento(3000);
+
+        Livewire::test(PagamentoEdit::class, [
+            'id' => $pagamento->id,
+        ])
+            ->call('atualizar')
+            ->assertHasNoErrors();
+
+        $this->assertEquals(
+            5000,
+            $this->reserva->fresh()->total_pago
+        );
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| TESTE 12 - CONVERTER PENDENTE EM PAGO
+|--------------------------------------------------------------------------
+*/
+
+    public function test_permite_converter_pendente_em_pago(): void
+    {
+        $pagamento = $this->criarPagamento(
+            1500,
+            'pendente'
+        );
+
+        Livewire::test(PagamentoEdit::class, [
+            'id' => $pagamento->id,
+        ])
+            ->set('status', 'pago')
+            ->call('atualizar')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('pagamentos', [
+            'id' => $pagamento->id,
+            'status' => 'pago',
+        ]);
+
+        $this->assertNotNull(
+            $pagamento->fresh()->data_pagamento
+        );
+
+        $this->assertEquals(
+            3500,
+            $this->reserva->fresh()->saldo_restante
+        );
+    }
+
+    /*
+|--------------------------------------------------------------------------
+| TESTE 13 - BLOQUEAR RESERVA CANCELADA
+|--------------------------------------------------------------------------
+*/
+
+    public function test_impede_editar_pagamento_em_reserva_cancelada(): void
+    {
+        $pagamento = $this->criarPagamento(1500);
+
+        $this->reserva->update([
+            'status' => 'cancelada',
+        ]);
+
+        Livewire::test(PagamentoEdit::class, [
+            'id' => $pagamento->id,
+        ])
+            ->set('valor', 2000)
+            ->call('atualizar')
+            ->assertHasErrors(['reserva_id']);
+
+        $this->assertDatabaseHas('pagamentos', [
+            'id' => $pagamento->id,
+            'valor' => 1500,
+        ]);
     }
 }
